@@ -25,20 +25,20 @@ export function AdminShell({ children }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { isOpen, toggleMenu, closeMenu } = useMobileMenu();
-  const [checkingAccess, setCheckingAccess] = useState(pathname !== "/admin/login");
   const supabase = getSupabaseBrowserClient();
   const isLoginRoute = pathname === "/admin/login";
+  const [checkingAccess, setCheckingAccess] = useState(pathname !== "/admin/login");
 
   useEffect(() => {
     let active = true;
 
     const validateSession = async () => {
       if (isLoginRoute) {
-        setCheckingAccess(false);
+        if (active) {
+          setCheckingAccess(false);
+        }
         return;
       }
-
-      setCheckingAccess(true);
 
       const {
         data: { session },
@@ -51,7 +51,7 @@ export function AdminShell({ children }: AdminShellProps) {
 
       const { data: profile } = await supabase
         .from("admin_profiles")
-        .select("user_id,is_active,role")
+        .select("user_id,is_active")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
@@ -71,7 +71,7 @@ export function AdminShell({ children }: AdminShellProps) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session && pathname !== "/admin/login") {
+      if (!session) {
         router.replace("/admin/login");
       }
     });
@@ -80,7 +80,7 @@ export function AdminShell({ children }: AdminShellProps) {
       active = false;
       subscription.unsubscribe();
     };
-  }, [isLoginRoute, pathname, router, supabase]);
+  }, [isLoginRoute, router, supabase]);
 
   if (isLoginRoute) {
     return (
