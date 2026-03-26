@@ -23,6 +23,20 @@ export function getSupabaseServerClient() {
   });
 }
 
+export function getSupabaseServerAuthClient(accessToken: string) {
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  });
+}
+
 export function getStoragePublicUrl(path: string | null) {
   if (!path) {
     return null;

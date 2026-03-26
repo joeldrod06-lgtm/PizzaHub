@@ -1,16 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import {
-  ChevronRight,
-  LoaderCircle,
-  LogOut,
-  Menu,
-  PanelLeftClose,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ChevronRight, LogOut, Menu, PanelLeftClose } from "lucide-react";
 
+import {
+  AdminNavigationProvider,
+  useAdminNavigation,
+} from "@/components/admin/AdminNavigationProvider";
 import { Button } from "@/components/ui/button";
 import { adminNavItems } from "@/data/admin";
 import { useMobileMenu } from "@/hooks/useMobileMenu";
@@ -21,85 +17,20 @@ type AdminShellProps = {
   children: React.ReactNode;
 };
 
-export function AdminShell({ children }: AdminShellProps) {
-  const pathname = usePathname();
+function AdminShellContent({ children }: AdminShellProps) {
   const router = useRouter();
   const { isOpen, toggleMenu, closeMenu } = useMobileMenu();
+  const { selectedView, setSelectedView } = useAdminNavigation();
   const supabase = getSupabaseBrowserClient();
-  const isLoginRoute = pathname === "/admin/login";
-  const [checkingAccess, setCheckingAccess] = useState(pathname !== "/admin/login");
 
-  useEffect(() => {
-    let active = true;
+  const activeItem =
+    adminNavItems.find((item) => item.key === selectedView) ?? adminNavItems[0];
 
-    const validateSession = async () => {
-      if (isLoginRoute) {
-        if (active) {
-          setCheckingAccess(false);
-        }
-        return;
-      }
-
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session) {
-        router.replace("/admin/login");
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from("admin_profiles")
-        .select("user_id,is_active")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
-
-      if (!profile?.is_active) {
-        await supabase.auth.signOut();
-        router.replace("/admin/login");
-        return;
-      }
-
-      if (active) {
-        setCheckingAccess(false);
-      }
-    };
-
-    void validateSession();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        router.replace("/admin/login");
-      }
-    });
-
-    return () => {
-      active = false;
-      subscription.unsubscribe();
-    };
-  }, [isLoginRoute, router, supabase]);
-
-  if (isLoginRoute) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0B0B0B] px-4 py-10">
-        {children}
-      </div>
-    );
-  }
-
-  if (checkingAccess) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0B0B0B] text-white">
-        <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4">
-          <LoaderCircle className="h-4 w-4 animate-spin" />
-          <span className="text-sm text-white/70">Validando acceso del admin...</span>
-        </div>
-      </div>
-    );
-  }
+  const handleLogout = async () => {
+    await fetch("/api/auth/session", { method: "DELETE" });
+    await supabase.auth.signOut();
+    router.replace("/admin/login");
+  };
 
   return (
     <div className="min-h-screen overscroll-y-none bg-[#0B0B0B] text-[#E8E8E8]">
@@ -129,18 +60,19 @@ export function AdminShell({ children }: AdminShellProps) {
           <div className="flex-1 overflow-y-auto overscroll-contain py-5 pr-1">
             <nav className="space-y-2">
               {adminNavItems.map((item) => {
-                const isActive =
-                  item.href === "/admin"
-                    ? pathname === item.href
-                    : pathname.startsWith(item.href);
+                const isActive = item.key === selectedView;
 
                 return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={closeMenu}
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => {
+                      setSelectedView(item.key);
+                      closeMenu();
+                      router.replace("/admin");
+                    }}
                     className={cn(
-                      "flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition",
+                      "flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm transition",
                       isActive
                         ? "border-orange-500/30 bg-orange-500/10 text-white"
                         : "border-white/6 bg-white/[0.02] text-white/65 hover:border-white/12 hover:text-white"
@@ -148,7 +80,7 @@ export function AdminShell({ children }: AdminShellProps) {
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
                     <span className="font-medium">{item.label}</span>
-                  </Link>
+                  </button>
                 );
               })}
             </nav>
@@ -158,10 +90,7 @@ export function AdminShell({ children }: AdminShellProps) {
             <Button
               variant="outline"
               className="w-full rounded-xl border-white/10 !bg-white/[0.03] text-white transition-colors duration-200 hover:!bg-white/[0.03] hover:!text-red-300"
-              onClick={async () => {
-                await supabase.auth.signOut();
-                router.replace("/admin/login");
-              }}
+              onClick={() => void handleLogout()}
             >
               <LogOut className="mr-2 h-4 w-4" />
               Cerrar sesión
@@ -186,13 +115,7 @@ export function AdminShell({ children }: AdminShellProps) {
                 <div className="mt-1 flex items-center gap-2 text-sm text-white/55">
                   <span>Admin</span>
                   <ChevronRight className="h-3.5 w-3.5" />
-                  <span className="text-white">
-                    {adminNavItems.find((item) =>
-                      item.href === "/admin"
-                        ? pathname === item.href
-                        : pathname.startsWith(item.href)
-                    )?.label ?? "Vista"}
-                  </span>
+                  <span className="text-white">{activeItem.label}</span>
                 </div>
               </div>
             </div>
@@ -213,5 +136,13 @@ export function AdminShell({ children }: AdminShellProps) {
         />
       ) : null}
     </div>
+  );
+}
+
+export function AdminShell({ children }: AdminShellProps) {
+  return (
+    <AdminNavigationProvider>
+      <AdminShellContent>{children}</AdminShellContent>
+    </AdminNavigationProvider>
   );
 }

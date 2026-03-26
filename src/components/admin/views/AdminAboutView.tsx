@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import {
-  AdminFeedbackBanner,
-} from "@/components/admin/AdminFeedbackBanner";
+import { AdminFeedbackBanner } from "@/components/admin/AdminFeedbackBanner";
 import { AdminActionButtons } from "@/components/admin/AdminActionButtons";
 import { ImageFieldManager } from "@/components/admin/ImageFieldManager";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -18,7 +16,7 @@ import type { AboutContent, SiteSection } from "@/types/cms";
 const textareaClassName =
   "flex min-h-40 w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition focus:border-orange-500/30";
 
-export default function AdminAboutPage() {
+export function AdminAboutView() {
   const supabase = getSupabaseBrowserClient();
   const { feedback, showFeedback } = useAdminFeedback();
   const [section, setSection] = useState<SiteSection | null>(null);
@@ -49,15 +47,12 @@ export default function AdminAboutPage() {
 
   const handleSave = async () => {
     if (!form || !section) return;
-
     setSaving(true);
-
     try {
       const { error: sectionError } = await supabase
         .from("site_sections")
         .update({ is_active: true })
         .eq("id", section.id);
-
       if (sectionError) throw sectionError;
 
       const { error: aboutError } = await supabase
@@ -69,7 +64,6 @@ export default function AdminAboutPage() {
           image_path: form.image_path,
         })
         .eq("id", form.id);
-
       if (aboutError) throw aboutError;
 
       setSection((current) => (current ? { ...current, is_active: true } : current));
@@ -83,15 +77,12 @@ export default function AdminAboutPage() {
 
   const handleDelete = async () => {
     if (!section) return;
-
     setDeleting(true);
-
     try {
       const { error } = await supabase
         .from("site_sections")
         .update({ is_active: false })
         .eq("id", section.id);
-
       if (error) throw error;
 
       setSection((current) => (current ? { ...current, is_active: false } : current));
@@ -114,9 +105,7 @@ export default function AdminAboutPage() {
         title="Editor de la sección Nosotros"
         description="Edita el título, la imagen y la descripción de esta sección única."
       />
-
       <AdminFeedbackBanner feedback={feedback} />
-
       <AdminPreviewCard
         title="Contenido de Nosotros"
         description={`Estado actual: ${section?.is_active ? "visible" : "oculto"}`}
@@ -155,7 +144,6 @@ export default function AdminAboutPage() {
                   className="border-white/10 bg-black/20 text-white"
                 />
               </div>
-
               <div>
                 <label className="mb-2 block text-sm text-white/65">Descripción</label>
                 <textarea

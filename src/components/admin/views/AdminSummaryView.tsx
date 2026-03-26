@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { useAdminNavigation } from "@/components/admin/AdminNavigationProvider";
 import { AdminMetricCard } from "@/components/admin/AdminMetricCard";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { adminSections } from "@/data/admin";
@@ -11,8 +11,9 @@ import { getSupabaseBrowserClient } from "@/lib/supabase";
 
 type SummaryCounts = Record<string, number>;
 
-export default function AdminDashboardPage() {
+export function AdminSummaryView() {
   const supabase = getSupabaseBrowserClient();
+  const { setSelectedView } = useAdminNavigation();
   const [counts, setCounts] = useState<SummaryCounts>({});
 
   useEffect(() => {
@@ -54,7 +55,9 @@ export default function AdminDashboardPage() {
 
       <section className="mt-6 rounded-3xl border border-white/8 bg-white/[0.02] p-5 md:p-6">
         <div className="mb-4">
-          <h3 className="text-base font-medium text-white md:text-lg">Accesos rápidos</h3>
+          <h3 className="text-base font-medium text-white md:text-lg">
+            Accesos rápidos
+          </h3>
           <p className="mt-1 text-sm text-white/40">
             Abre la sección que quieras editar.
           </p>
@@ -62,17 +65,18 @@ export default function AdminDashboardPage() {
 
         <div className="grid gap-3 md:grid-cols-2">
           {adminSections.map((section) => (
-            <Link
-              key={section.title}
-              href={section.route}
-              className="flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 px-4 py-4 transition hover:border-white/14 hover:bg-black/30"
+            <button
+              key={section.key}
+              type="button"
+              onClick={() => setSelectedView(section.key)}
+              className="flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 px-4 py-4 text-left transition hover:border-white/14 hover:bg-black/30"
             >
               <div>
                 <p className="text-sm font-medium text-white">{section.title}</p>
                 <p className="mt-1 text-sm text-white/40">{section.description}</p>
               </div>
               <ArrowRight className="h-4 w-4 text-orange-300" />
-            </Link>
+            </button>
           ))}
         </div>
       </section>

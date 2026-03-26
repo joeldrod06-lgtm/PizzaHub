@@ -2,9 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import {
-  AdminFeedbackBanner,
-} from "@/components/admin/AdminFeedbackBanner";
+import { AdminFeedbackBanner } from "@/components/admin/AdminFeedbackBanner";
 import { AdminActionButtons } from "@/components/admin/AdminActionButtons";
 import { ImageFieldManager } from "@/components/admin/ImageFieldManager";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -44,7 +42,7 @@ function createEmptyNewItem(): NewMenuItemDraft {
   };
 }
 
-export default function AdminMenuPage() {
+export function AdminMenuView() {
   const supabase = getSupabaseBrowserClient();
   const { feedback, showFeedback } = useAdminFeedback();
   const [items, setItems] = useState<MenuItem[]>([]);
@@ -94,7 +92,6 @@ export default function AdminMenuPage() {
 
   const handleSave = async (item: MenuItem) => {
     setSavingId(item.id);
-
     try {
       const { error } = await supabase
         .from("menu_items")
@@ -113,7 +110,10 @@ export default function AdminMenuPage() {
       if (error) throw error;
 
       await loadItems();
-      showFeedback({ tone: "success", message: `"${item.name}" se guardó correctamente.` });
+      showFeedback({
+        tone: "success",
+        message: `"${item.name}" se guardó correctamente.`,
+      });
     } catch (error) {
       showFeedback({ tone: "error", message: getAdminErrorMessage(error) });
     } finally {
@@ -123,13 +123,11 @@ export default function AdminMenuPage() {
 
   const handleDelete = async (item: MenuItem) => {
     setDeletingId(item.id);
-
     try {
       if (item.image_path) {
         const { error: storageError } = await supabase.storage
           .from("site-media")
           .remove([item.image_path]);
-
         if (storageError) throw storageError;
       }
 
@@ -137,7 +135,10 @@ export default function AdminMenuPage() {
       if (error) throw error;
 
       await loadItems();
-      showFeedback({ tone: "success", message: `"${item.name}" se eliminó correctamente.` });
+      showFeedback({
+        tone: "success",
+        message: `"${item.name}" se eliminó correctamente.`,
+      });
     } catch (error) {
       showFeedback({ tone: "error", message: getAdminErrorMessage(error) });
     } finally {
@@ -146,12 +147,8 @@ export default function AdminMenuPage() {
   };
 
   const handleCreate = async () => {
-    if (!canCreate) {
-      return;
-    }
-
+    if (!canCreate) return;
     setCreating(true);
-
     try {
       const itemName = newItem.name.trim();
 
@@ -165,12 +162,14 @@ export default function AdminMenuPage() {
         is_active: newItem.is_active,
         display_order: Number(newItem.display_order || nextDisplayOrder),
       });
-
       if (error) throw error;
 
       setNewItem(createEmptyNewItem());
       await loadItems();
-      showFeedback({ tone: "success", message: `"${itemName}" se creó correctamente.` });
+      showFeedback({
+        tone: "success",
+        message: `"${itemName}" se creó correctamente.`,
+      });
     } catch (error) {
       showFeedback({ tone: "error", message: getAdminErrorMessage(error) });
     } finally {
@@ -189,7 +188,6 @@ export default function AdminMenuPage() {
         title="Editor del menú público"
         description="Gestiona las pizzas visibles en el sitio y agrega nuevos productos desde un bloque separado."
       />
-
       <AdminFeedbackBanner feedback={feedback} />
 
       <div className="space-y-5">
@@ -262,7 +260,6 @@ export default function AdminMenuPage() {
                             className="border-white/10 bg-black/20 text-white"
                           />
                         </div>
-
                         <div>
                           <label className="mb-2 block text-sm text-white/65">Categoría</label>
                           <Input
@@ -273,7 +270,6 @@ export default function AdminMenuPage() {
                             className="border-white/10 bg-black/20 text-white"
                           />
                         </div>
-
                         <div>
                           <label className="mb-2 block text-sm text-white/65">Precio</label>
                           <Input
@@ -287,7 +283,6 @@ export default function AdminMenuPage() {
                             className="border-white/10 bg-black/20 text-white"
                           />
                         </div>
-
                         <div>
                           <label className="mb-2 block text-sm text-white/65">Orden visual</label>
                           <Input
@@ -338,7 +333,9 @@ export default function AdminMenuPage() {
                           showAdd={false}
                           disabled={isBusy}
                           editLabel={savingId === item.id ? "Guardando..." : "Guardar cambios"}
-                          deleteLabel={deletingId === item.id ? "Eliminando..." : "Eliminar pizza"}
+                          deleteLabel={
+                            deletingId === item.id ? "Eliminando..." : "Eliminar pizza"
+                          }
                           onEdit={() => void handleSave(item)}
                           onDelete={() => void handleDelete(item)}
                         />
@@ -386,7 +383,6 @@ export default function AdminMenuPage() {
                     placeholder="Pizza de la casa"
                   />
                 </div>
-
                 <div>
                   <label className="mb-2 block text-sm text-white/65">Categoría</label>
                   <Input
@@ -398,7 +394,6 @@ export default function AdminMenuPage() {
                     placeholder="Clásicas"
                   />
                 </div>
-
                 <div>
                   <label className="mb-2 block text-sm text-white/65">Precio</label>
                   <Input
@@ -413,7 +408,6 @@ export default function AdminMenuPage() {
                     placeholder="145"
                   />
                 </div>
-
                 <div>
                   <label className="mb-2 block text-sm text-white/65">Orden visual</label>
                   <Input

@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import {
-  AdminFeedbackBanner,
-} from "@/components/admin/AdminFeedbackBanner";
+import { AdminFeedbackBanner } from "@/components/admin/AdminFeedbackBanner";
 import { AdminActionButtons } from "@/components/admin/AdminActionButtons";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminPreviewCard } from "@/components/admin/AdminPreviewCard";
@@ -17,7 +15,7 @@ import type { HeroContent, SiteSection } from "@/types/cms";
 const textareaClassName =
   "flex min-h-28 w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition focus:border-orange-500/30";
 
-export default function AdminHeroPage() {
+export function AdminHeroView() {
   const supabase = getSupabaseBrowserClient();
   const { feedback, showFeedback } = useAdminFeedback();
   const [section, setSection] = useState<SiteSection | null>(null);
@@ -52,15 +50,12 @@ export default function AdminHeroPage() {
 
   const handleSave = async () => {
     if (!form || !section) return;
-
     setSaving(true);
-
     try {
       const { error: sectionError } = await supabase
         .from("site_sections")
         .update({ is_active: true })
         .eq("id", section.id);
-
       if (sectionError) throw sectionError;
 
       const { error: contentError } = await supabase
@@ -74,7 +69,6 @@ export default function AdminHeroPage() {
           secondary_button_href: form.secondary_button_href,
         })
         .eq("id", form.id);
-
       if (contentError) throw contentError;
 
       setSection((current) => (current ? { ...current, is_active: true } : current));
@@ -88,15 +82,12 @@ export default function AdminHeroPage() {
 
   const handleDelete = async () => {
     if (!section) return;
-
     setDeleting(true);
-
     try {
       const { error } = await supabase
         .from("site_sections")
         .update({ is_active: false })
         .eq("id", section.id);
-
       if (error) throw error;
 
       setSection((current) => (current ? { ...current, is_active: false } : current));
@@ -119,9 +110,7 @@ export default function AdminHeroPage() {
         title="Editor del hero principal"
         description="Actualiza el bloque principal del sitio y controla si la sección está visible."
       />
-
       <AdminFeedbackBanner feedback={feedback} />
-
       <AdminPreviewCard
         title="Contenido principal"
         description={`Estado actual: ${section?.is_active ? "visible" : "oculto"}`}
@@ -135,7 +124,6 @@ export default function AdminHeroPage() {
               className="border-white/10 bg-black/20 text-white"
             />
           </div>
-
           <div>
             <label className="mb-2 block text-sm text-white/65">Descripción</label>
             <textarea
@@ -144,15 +132,12 @@ export default function AdminHeroPage() {
               className={textareaClassName}
             />
           </div>
-
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="mb-2 block text-sm text-white/65">Texto botón principal</label>
               <Input
                 value={form.primary_button_text}
-                onChange={(event) =>
-                  updateField("primary_button_text", event.target.value)
-                }
+                onChange={(event) => updateField("primary_button_text", event.target.value)}
                 className="border-white/10 bg-black/20 text-white"
               />
             </div>
@@ -160,9 +145,7 @@ export default function AdminHeroPage() {
               <label className="mb-2 block text-sm text-white/65">Href botón principal</label>
               <Input
                 value={form.primary_button_href}
-                onChange={(event) =>
-                  updateField("primary_button_href", event.target.value)
-                }
+                onChange={(event) => updateField("primary_button_href", event.target.value)}
                 className="border-white/10 bg-black/20 text-white"
               />
             </div>
@@ -170,9 +153,7 @@ export default function AdminHeroPage() {
               <label className="mb-2 block text-sm text-white/65">Texto botón secundario</label>
               <Input
                 value={form.secondary_button_text}
-                onChange={(event) =>
-                  updateField("secondary_button_text", event.target.value)
-                }
+                onChange={(event) => updateField("secondary_button_text", event.target.value)}
                 className="border-white/10 bg-black/20 text-white"
               />
             </div>
@@ -180,14 +161,11 @@ export default function AdminHeroPage() {
               <label className="mb-2 block text-sm text-white/65">Href botón secundario</label>
               <Input
                 value={form.secondary_button_href}
-                onChange={(event) =>
-                  updateField("secondary_button_href", event.target.value)
-                }
+                onChange={(event) => updateField("secondary_button_href", event.target.value)}
                 className="border-white/10 bg-black/20 text-white"
               />
             </div>
           </div>
-
           <AdminActionButtons
             compact
             showAdd={false}

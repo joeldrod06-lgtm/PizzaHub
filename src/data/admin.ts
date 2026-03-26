@@ -7,46 +7,48 @@ import {
   Pizza,
 } from "lucide-react";
 
+import type { AdminViewKey } from "@/components/admin/AdminNavigationProvider";
+
 export type AdminNavItem = {
-  href: string;
+  key: AdminViewKey;
   label: string;
   icon: LucideIcon;
   description: string;
 };
 
 export type AdminSectionSummary = {
+  key: Exclude<AdminViewKey, "resumen">;
   title: string;
   description: string;
-  route: string;
 };
 
 export const adminNavItems: AdminNavItem[] = [
   {
-    href: "/admin",
+    key: "resumen",
     label: "Resumen",
     icon: LayoutGrid,
     description: "Vista general del contenido editable.",
   },
   {
-    href: "/admin/inicio",
+    key: "inicio",
     label: "Inicio",
     icon: BookOpenText,
     description: "Hero principal y CTAs.",
   },
   {
-    href: "/admin/menu",
+    key: "menu",
     label: "Menú",
     icon: Pizza,
     description: "Pizzas, precios y estado.",
   },
   {
-    href: "/admin/nosotros",
+    key: "nosotros",
     label: "Nosotros",
     icon: MessageSquareQuote,
     description: "Historia, imagen y descripción.",
   },
   {
-    href: "/admin/contacto",
+    key: "contacto",
     label: "Contacto",
     icon: Phone,
     description: "Teléfono, ubicación, horario y link.",
@@ -55,23 +57,23 @@ export const adminNavItems: AdminNavItem[] = [
 
 export const adminSections: AdminSectionSummary[] = [
   {
+    key: "inicio",
     title: "Inicio",
     description: "Título, subtítulo y botones del hero.",
-    route: "/admin/inicio",
   },
   {
+    key: "menu",
     title: "Menú",
     description: "Listado de pizzas visibles en la landing.",
-    route: "/admin/menu",
   },
   {
+    key: "nosotros",
     title: "Nosotros",
     description: "Sección única con título, imagen y descripción.",
-    route: "/admin/nosotros",
   },
   {
+    key: "contacto",
     title: "Contacto",
     description: "Datos operativos y link de mapa.",
-    route: "/admin/contacto",
   },
 ];

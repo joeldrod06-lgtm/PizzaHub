@@ -3,9 +3,7 @@
 import { ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import {
-  AdminFeedbackBanner,
-} from "@/components/admin/AdminFeedbackBanner";
+import { AdminFeedbackBanner } from "@/components/admin/AdminFeedbackBanner";
 import { AdminActionButtons } from "@/components/admin/AdminActionButtons";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminPreviewCard } from "@/components/admin/AdminPreviewCard";
@@ -16,7 +14,7 @@ import { getAdminErrorMessage } from "@/lib/admin";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 import type { ContactContent, SiteSection } from "@/types/cms";
 
-export default function AdminContactPage() {
+export function AdminContactView() {
   const supabase = getSupabaseBrowserClient();
   const { feedback, showFeedback } = useAdminFeedback();
   const [section, setSection] = useState<SiteSection | null>(null);
@@ -54,15 +52,12 @@ export default function AdminContactPage() {
 
   const handleSave = async () => {
     if (!form || !section) return;
-
     setSaving(true);
-
     try {
       const { error: sectionError } = await supabase
         .from("site_sections")
         .update({ is_active: true })
         .eq("id", section.id);
-
       if (sectionError) throw sectionError;
 
       const { error: contactError } = await supabase
@@ -74,7 +69,6 @@ export default function AdminContactPage() {
           map_url: form.map_url,
         })
         .eq("id", form.id);
-
       if (contactError) throw contactError;
 
       setSection((current) => (current ? { ...current, is_active: true } : current));
@@ -88,15 +82,12 @@ export default function AdminContactPage() {
 
   const handleDelete = async () => {
     if (!section) return;
-
     setDeleting(true);
-
     try {
       const { error } = await supabase
         .from("site_sections")
         .update({ is_active: false })
         .eq("id", section.id);
-
       if (error) throw error;
 
       setSection((current) => (current ? { ...current, is_active: false } : current));
@@ -119,9 +110,7 @@ export default function AdminContactPage() {
         title="Editor de datos de contacto"
         description="Actualiza los datos visibles para el cliente y el enlace del mapa."
       />
-
       <AdminFeedbackBanner feedback={feedback} />
-
       <AdminPreviewCard
         title="Datos de contacto"
         description={`Estado actual: ${section?.is_active ? "visible" : "oculto"}`}
@@ -135,7 +124,6 @@ export default function AdminContactPage() {
               className="border-white/10 bg-black/20 text-white"
             />
           </div>
-
           <div>
             <label className="mb-2 block text-sm text-white/65">Ubicación</label>
             <Input
@@ -144,7 +132,6 @@ export default function AdminContactPage() {
               className="border-white/10 bg-black/20 text-white"
             />
           </div>
-
           <div>
             <label className="mb-2 block text-sm text-white/65">Horario</label>
             <Input
@@ -153,7 +140,6 @@ export default function AdminContactPage() {
               className="border-white/10 bg-black/20 text-white"
             />
           </div>
-
           <div>
             <div className="mb-2 flex items-center gap-2">
               <label className="block text-sm text-white/65">Link de mapa</label>
@@ -169,7 +155,6 @@ export default function AdminContactPage() {
               <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
             </div>
           </div>
-
           <AdminActionButtons
             compact
             showAdd={false}
