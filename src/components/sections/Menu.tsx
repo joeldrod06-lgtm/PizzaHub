@@ -1,7 +1,6 @@
 "use client";
 
 import { Flame, Pizza, Star } from "lucide-react";
-import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,13 +8,9 @@ import { pizzas } from "@/data/pizzas";
 
 export function MenuSection() {
   return (
-    <motion.section
+    <section
       id="menu"
-      initial={{ opacity: 0, y: 60 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.7 }}
-      className="py-16 sm:py-20 md:py-28 lg:py-32 px-4 sm:px-6 md:px-8 bg-[#0A0A0A]"
+      className="py-16 sm:py-20 md:py-28 lg:py-32 px-4 sm:px-6 md:px-8 bg-[#0A0A0A] scroll-mt-24"
     >
       <div className="max-w-7xl mx-auto">
         <div className="mb-10 sm:mb-12 md:mb-16 text-center md:text-left">
@@ -29,16 +24,8 @@ export function MenuSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 items-stretch">
-          {pizzas.map((pizza, index) => (
-            <motion.div
-              key={pizza.name}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
-              whileHover={{ y: -4 }}
-              className="h-full"
-            >
+          {pizzas.map((pizza) => (
+            <div key={pizza.name} className="h-full">
               <Card className="bg-[#0F0F0F] border border-[#E8E8E8]/10 rounded-md shadow-2xl hover:border-orange-500/30 transition-all duration-500 group overflow-hidden h-full flex flex-col">
                 <div className="h-40 sm:h-44 md:h-48 lg:h-52 bg-gradient-to-br from-[#141414] to-[#1A1A1A] flex items-center justify-center relative overflow-hidden flex-shrink-0">
                   <div className="absolute inset-0 bg-orange-500/5 group-hover:bg-orange-500/10 transition-all duration-500" />
@@ -77,7 +64,7 @@ export function MenuSection() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
 
@@ -90,6 +77,6 @@ export function MenuSection() {
           </Button>
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

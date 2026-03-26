@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { useMobileMenu } from "@/hooks/useMobileMenu";
+import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 
 const navLinks = [
   { href: "#inicio", label: "Inicio" },
@@ -15,12 +16,13 @@ const navLinks = [
 
 export function Navbar() {
   const { isOpen, toggleMenu, closeMenu } = useMobileMenu();
+  const smoothScroll = useSmoothScroll();
 
   return (
     <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      initial={{ y: -40, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
       className="fixed top-0 w-full bg-[#0A0A0A]/95 backdrop-blur-sm border-b border-[#E8E8E8]/10 z-50"
     >
       <div className="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 md:px-8 py-4 md:py-5">
@@ -40,6 +42,10 @@ export function Navbar() {
             <a
               key={link.href}
               href={link.href}
+              onClick={(event) => {
+                event.preventDefault();
+                smoothScroll(link.href);
+              }}
               className="text-[#E8E8E8]/50 hover:text-orange-400 transition-colors duration-200"
             >
               {link.label}
@@ -65,7 +71,7 @@ export function Navbar() {
       <motion.div
         initial={false}
         animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.25 }}
         className="md:hidden overflow-hidden bg-[#0A0A0A]/95 backdrop-blur-sm border-b border-[#E8E8E8]/10"
       >
         <div className="flex flex-col px-6 py-4 gap-4">
@@ -73,7 +79,10 @@ export function Navbar() {
             <a
               key={link.href}
               href={link.href}
-              onClick={closeMenu}
+              onClick={(event) => {
+                event.preventDefault();
+                smoothScroll(link.href, closeMenu);
+              }}
               className="text-[#E8E8E8]/70 hover:text-orange-400 transition-colors py-2"
             >
               {link.label}

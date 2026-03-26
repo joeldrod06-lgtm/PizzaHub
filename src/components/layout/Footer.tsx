@@ -1,3 +1,7 @@
+"use client";
+
+import { useSmoothScroll } from "@/hooks/useSmoothScroll";
+
 const footerLinks = [
   { href: "#inicio", label: "Inicio" },
   { href: "#menu", label: "Menú" },
@@ -6,6 +10,8 @@ const footerLinks = [
 ];
 
 export function Footer() {
+  const smoothScroll = useSmoothScroll();
+
   return (
     <footer className="bg-[#0A0A0A] border-t border-[#E8E8E8]/5 py-12 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
@@ -31,6 +37,10 @@ export function Footer() {
                 <li key={link.href}>
                   <a
                     href={link.href}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      smoothScroll(link.href);
+                    }}
                     className="hover:text-orange-400 transition-colors duration-200"
                   >
                     {link.label}

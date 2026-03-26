@@ -6,19 +6,17 @@ import Image from "next/image";
 
 import { staggerContainer, staggerItem } from "@/animations/stagger";
 import { Button } from "@/components/ui/button";
+import { useSmoothScroll } from "@/hooks/useSmoothScroll";
 
 export function Hero() {
+  const smoothScroll = useSmoothScroll();
+
   return (
     <section
       id="inicio"
-      className="relative min-h-screen flex items-center justify-center text-center overflow-hidden pt-20"
+      className="relative min-h-screen flex items-center justify-center text-center overflow-hidden pt-20 scroll-mt-24"
     >
-      <motion.div
-        initial={{ scale: 1.1 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
-        className="absolute inset-0"
-      >
+      <div className="absolute inset-0">
         <Image
           src="/pizza-hero.png"
           alt="Pizza artesanal"
@@ -26,7 +24,7 @@ export function Hero() {
           className="object-cover opacity-30"
           priority
         />
-      </motion.div>
+      </div>
 
       <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/90 via-[#0A0A0A]/60 to-[#0A0A0A]" />
 
@@ -62,15 +60,18 @@ export function Hero() {
           variants={staggerItem}
           className="flex flex-col sm:flex-row gap-3 sm:gap-5 justify-center items-center px-4 sm:px-0"
         >
-          <motion.div whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
-            <Button className="group relative overflow-hidden bg-orange-500 hover:bg-orange-600 text-white rounded-md px-6 sm:px-8 md:px-10 py-4 sm:py-5 md:py-6 text-sm font-medium tracking-wide transition-all duration-300 hover:scale-[1.02] sm:hover:scale-[1.03] shadow-lg shadow-orange-500/20 w-full sm:w-auto">
+          <motion.div whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
+            <Button
+              onClick={() => smoothScroll("#menu")}
+              className="group relative overflow-hidden bg-orange-500 hover:bg-orange-600 text-white rounded-md px-6 sm:px-8 md:px-10 py-4 sm:py-5 md:py-6 text-sm font-medium tracking-wide transition-all duration-300 hover:scale-[1.02] sm:hover:scale-[1.03] shadow-lg shadow-orange-500/20 w-full sm:w-auto"
+            >
               <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               CONOCE NUESTRO MENÚ
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </motion.div>
 
-          <motion.div whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
+          <motion.div whileTap={{ scale: 0.98 }} className="w-full sm:w-auto">
             <Button className="group relative overflow-hidden bg-white/5 hover:bg-white/10 text-white rounded-md px-6 sm:px-8 md:px-10 py-4 sm:py-5 md:py-6 text-sm font-medium tracking-wide border border-white/10 hover:border-orange-400/30 backdrop-blur transition-all duration-300 w-full sm:w-auto">
               <span className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <Phone className="w-4 h-4 mr-2" />
@@ -80,14 +81,9 @@ export function Hero() {
         </motion.div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 0.6 }}
-        className="absolute bottom-6 sm:bottom-12 left-1/2 transform -translate-x-1/2"
-      >
+      <div className="absolute bottom-6 sm:bottom-12 left-1/2 transform -translate-x-1/2">
         <div className="w-px h-12 sm:h-16 bg-orange-500/20" />
-      </motion.div>
+      </div>
     </section>
   );
 }
