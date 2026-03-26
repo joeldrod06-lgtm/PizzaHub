@@ -1,0 +1,232 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  ChevronRight,
+  LoaderCircle,
+  LogOut,
+  Menu,
+  PanelLeftClose,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { adminNavItems } from "@/data/admin";
+import { useMobileMenu } from "@/hooks/useMobileMenu";
+import { getSupabaseBrowserClient } from "@/lib/supabase";
+import { cn } from "@/lib/utils";
+
+type AdminShellProps = {
+  children: React.ReactNode;
+};
+
+export function AdminShell({ children }: AdminShellProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { isOpen, toggleMenu, closeMenu } = useMobileMenu();
+  const [checkingAccess, setCheckingAccess] = useState(pathname !== "/admin/login");
+  const supabase = getSupabaseBrowserClient();
+  const isLoginRoute = pathname === "/admin/login";
+
+  useEffect(() => {
+    let active = true;
+
+    const validateSession = async () => {
+      if (isLoginRoute) {
+        setCheckingAccess(false);
+        return;
+      }
+
+      setCheckingAccess(true);
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        router.replace("/admin/login");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("admin_profiles")
+        .select("user_id,is_active,role")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      if (!profile?.is_active) {
+        await supabase.auth.signOut();
+        router.replace("/admin/login");
+        return;
+      }
+
+      if (active) {
+        setCheckingAccess(false);
+      }
+    };
+
+    void validateSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session && pathname !== "/admin/login") {
+        router.replace("/admin/login");
+      }
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, [isLoginRoute, pathname, router, supabase]);
+
+  if (isLoginRoute) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#0B0B0B] px-4 py-10">
+        {children}
+      </div>
+    );
+  }
+
+  if (checkingAccess) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#0B0B0B] text-white">
+        <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4">
+          <LoaderCircle className="h-4 w-4 animate-spin" />
+          <span className="text-sm text-white/70">Validando acceso del admin...</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen overscroll-y-none bg-[#0B0B0B] text-[#E8E8E8]">
+      <div className="mx-auto flex min-h-screen max-w-[1600px]">
+        <aside
+          className={cn(
+            "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/8 bg-[#111111] px-5 py-6 transition-transform duration-300 md:sticky md:top-0 md:h-screen md:translate-x-0",
+            isOpen ? "translate-x-0" : "-translate-x-full"
+          )}
+        >
+          <div className="flex items-center justify-between border-b border-white/8 pb-5">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.35em] text-orange-400/70">
+                PizzaHub
+              </p>
+              <h1 className="mt-2 text-lg font-medium">Editor de contenido</h1>
+            </div>
+            <button
+              onClick={closeMenu}
+              className="rounded-md border border-white/10 p-2 text-white/60 transition hover:text-orange-400 md:hidden"
+              aria-label="Cerrar menú del admin"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto overscroll-contain pb-5 pr-1">
+            <nav className="mt-6 space-y-2">
+              {adminNavItems.map((item) => {
+                const isActive =
+                  item.href === "/admin"
+                    ? pathname === item.href
+                    : pathname.startsWith(item.href);
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={closeMenu}
+                    className={cn(
+                      "flex items-start gap-3 rounded-2xl border px-4 py-3 transition",
+                      isActive
+                        ? "border-orange-500/30 bg-orange-500/10 text-white"
+                        : "border-white/6 bg-white/[0.02] text-white/65 hover:border-white/12 hover:text-white"
+                    )}
+                  >
+                    <item.icon className="mt-0.5 h-4 w-4 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium">{item.label}</p>
+                      <p className="mt-1 text-xs text-white/40">{item.description}</p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="mt-8 rounded-3xl border border-orange-500/15 bg-orange-500/[0.06] p-4">
+              <p className="text-xs uppercase tracking-[0.25em] text-orange-400/65">
+                Alcance actual
+              </p>
+              <p className="mt-3 text-sm text-white/75">
+                Este panel está conectado a Supabase y enfocado en editar las
+                secciones públicas: Inicio, Menú, Nosotros y Contacto.
+              </p>
+            </div>
+          </div>
+
+          <div className="border-t border-white/8 pt-5">
+            <Button
+              variant="outline"
+              className="w-full border-white/10 bg-white/[0.03] text-white hover:bg-white/10"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                router.replace("/admin/login");
+              }}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Cerrar sesión
+            </Button>
+          </div>
+        </aside>
+
+        <div className="flex min-h-screen min-w-0 flex-1 flex-col overscroll-y-none">
+          <header className="sticky top-0 z-30 border-b border-white/8 bg-[#0B0B0B]/90 px-4 py-4 backdrop-blur md:px-8">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={toggleMenu}
+                  className="rounded-md border border-white/10 p-2 text-white/70 transition hover:text-orange-400 md:hidden"
+                  aria-label="Abrir menú del admin"
+                >
+                  <Menu className="h-4 w-4" />
+                </button>
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.35em] text-white/35">
+                    Panel interno
+                  </p>
+                  <div className="mt-1 flex items-center gap-2 text-sm text-white/60">
+                    <span>Admin</span>
+                    <ChevronRight className="h-3.5 w-3.5" />
+                    <span className="text-white">
+                      {adminNavItems.find((item) =>
+                        item.href === "/admin"
+                          ? pathname === item.href
+                          : pathname.startsWith(item.href)
+                      )?.label ?? "Vista"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <main className="flex-1 overscroll-contain px-4 py-6 md:px-8 md:py-8">
+            {children}
+          </main>
+        </div>
+      </div>
+
+      {isOpen ? (
+        <button
+          type="button"
+          aria-label="Cerrar menú"
+          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          onClick={closeMenu}
+        />
+      ) : null}
+    </div>
+  );
+}

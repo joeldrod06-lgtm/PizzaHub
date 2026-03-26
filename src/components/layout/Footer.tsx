@@ -1,6 +1,7 @@
 "use client";
 
 import { useSmoothScroll } from "@/hooks/useSmoothScroll";
+import type { ContactContent } from "@/types/cms";
 
 const footerLinks = [
   { href: "#inicio", label: "Inicio" },
@@ -9,30 +10,34 @@ const footerLinks = [
   { href: "#contacto", label: "Contacto" },
 ];
 
-export function Footer() {
+type FooterProps = {
+  contact: ContactContent | null;
+};
+
+export function Footer({ contact }: FooterProps) {
   const smoothScroll = useSmoothScroll();
 
   return (
-    <footer className="bg-[#0A0A0A] border-t border-[#E8E8E8]/5 py-12 sm:py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-10">
+    <footer className="border-t border-[#E8E8E8]/5 bg-[#0A0A0A] py-12 sm:py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+        <div className="mb-8 grid grid-cols-1 gap-8 sm:mb-10 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4 lg:gap-12">
           <div>
             <div className="mb-3">
-              <span className="text-orange-400/60 text-xs tracking-[0.2em] sm:tracking-[0.3em] font-light">
+              <span className="text-xs font-light tracking-[0.2em] text-orange-400/60 sm:tracking-[0.3em]">
                 PIZZAHUB
               </span>
             </div>
-            <p className="text-[#E8E8E8]/20 text-xs font-light leading-relaxed">
-              La nueva experiencia de pizza artesanal,{" "}
+            <p className="text-xs font-light leading-relaxed text-[#E8E8E8]/20">
+              La nueva experiencia de pizza artesanal,
               <br className="hidden sm:block" />
               hecha con pasión desde 2026.
             </p>
           </div>
           <div>
-            <h5 className="text-[#E8E8E8]/50 text-xs font-light mb-3 sm:mb-4 tracking-wider">
+            <h5 className="mb-3 text-xs font-light tracking-wider text-[#E8E8E8]/50 sm:mb-4">
               ENLACES
             </h5>
-            <ul className="space-y-2 text-[#E8E8E8]/20 text-xs">
+            <ul className="space-y-2 text-xs text-[#E8E8E8]/20">
               {footerLinks.map((link) => (
                 <li key={link.href}>
                   <a
@@ -41,7 +46,7 @@ export function Footer() {
                       event.preventDefault();
                       smoothScroll(link.href);
                     }}
-                    className="hover:text-orange-400 transition-colors duration-200"
+                    className="transition-colors duration-200 hover:text-orange-400"
                   >
                     {link.label}
                   </a>
@@ -50,42 +55,38 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h5 className="text-[#E8E8E8]/50 text-xs font-light mb-3 sm:mb-4 tracking-wider">
+            <h5 className="mb-3 text-xs font-light tracking-wider text-[#E8E8E8]/50 sm:mb-4">
               HORARIO
             </h5>
-            <ul className="space-y-2 text-[#E8E8E8]/20 text-xs">
-              <li>Lunes - Viernes: 11:00 - 00:00</li>
-              <li>Sábado - Domingo: 12:00 - 01:00</li>
+            <ul className="space-y-2 text-xs text-[#E8E8E8]/20">
+              {contact?.schedule ? <li>{contact.schedule}</li> : null}
+              {contact?.address ? <li>{contact.address}</li> : null}
               <li className="text-orange-400/20">Delivery hasta 00:30</li>
             </ul>
           </div>
           <div>
-            <h5 className="text-[#E8E8E8]/50 text-xs font-light mb-3 sm:mb-4 tracking-wider">
-              SOCIAL
+            <h5 className="mb-3 text-xs font-light tracking-wider text-[#E8E8E8]/50 sm:mb-4">
+              CONTACTO
             </h5>
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-2 text-xs text-[#E8E8E8]/20">
               <a
-                href="#"
-                className="text-[#E8E8E8]/20 hover:text-orange-400 text-xs transition-colors duration-200"
+                href={contact?.phone ? `tel:${contact.phone.replace(/\s+/g, "")}` : "#"}
+                className="transition-colors duration-200 hover:text-orange-400"
               >
-                Facebook
+                {contact?.phone ?? "Disponible en el sitio"}
               </a>
               <a
-                href="#"
-                className="text-[#E8E8E8]/20 hover:text-orange-400 text-xs transition-colors duration-200"
+                href={contact?.map_url ?? "#"}
+                target="_blank"
+                rel="noreferrer"
+                className="transition-colors duration-200 hover:text-orange-400"
               >
-                Instagram
-              </a>
-              <a
-                href="#"
-                className="text-[#E8E8E8]/20 hover:text-orange-400 text-xs transition-colors duration-200"
-              >
-                X
+                {contact?.map_url ? "Ver ubicación" : "Mapa no configurado"}
               </a>
             </div>
           </div>
         </div>
-        <div className="border-t border-[#E8E8E8]/5 pt-6 sm:pt-8 text-center text-[#E8E8E8]/20 text-[9px] sm:text-[10px] font-light tracking-wide">
+        <div className="border-t border-[#E8E8E8]/5 pt-6 text-center text-[9px] font-light tracking-wide text-[#E8E8E8]/20 sm:pt-8 sm:text-[10px]">
           © 2026 PizzaHub. Todos los derechos reservados. | Hecho con pasión
           desde cero
         </div>
