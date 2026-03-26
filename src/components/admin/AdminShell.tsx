@@ -103,7 +103,7 @@ export function AdminShell({ children }: AdminShellProps) {
 
   return (
     <div className="min-h-screen overscroll-y-none bg-[#0B0B0B] text-[#E8E8E8]">
-      <div className="mx-auto flex min-h-screen max-w-[1600px]">
+      <div className="mx-auto flex min-h-screen max-w-[1500px]">
         <aside
           className={cn(
             "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/8 bg-[#111111] px-5 py-6 transition-transform duration-300 md:sticky md:top-0 md:h-screen md:translate-x-0",
@@ -115,7 +115,7 @@ export function AdminShell({ children }: AdminShellProps) {
               <p className="text-[11px] uppercase tracking-[0.35em] text-orange-400/70">
                 PizzaHub
               </p>
-              <h1 className="mt-2 text-lg font-medium">Editor de contenido</h1>
+              <h1 className="mt-2 text-base font-medium text-white">Admin</h1>
             </div>
             <button
               onClick={closeMenu}
@@ -126,8 +126,8 @@ export function AdminShell({ children }: AdminShellProps) {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto overscroll-contain pb-5 pr-1">
-            <nav className="mt-6 space-y-2">
+          <div className="flex-1 overflow-y-auto overscroll-contain py-5 pr-1">
+            <nav className="space-y-2">
               {adminNavItems.map((item) => {
                 const isActive =
                   item.href === "/admin"
@@ -140,37 +140,24 @@ export function AdminShell({ children }: AdminShellProps) {
                     href={item.href}
                     onClick={closeMenu}
                     className={cn(
-                      "flex items-start gap-3 rounded-2xl border px-4 py-3 transition",
+                      "flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition",
                       isActive
                         ? "border-orange-500/30 bg-orange-500/10 text-white"
                         : "border-white/6 bg-white/[0.02] text-white/65 hover:border-white/12 hover:text-white"
                     )}
                   >
-                    <item.icon className="mt-0.5 h-4 w-4 shrink-0" />
-                    <div>
-                      <p className="text-sm font-medium">{item.label}</p>
-                      <p className="mt-1 text-xs text-white/40">{item.description}</p>
-                    </div>
+                    <item.icon className="h-4 w-4 shrink-0" />
+                    <span className="font-medium">{item.label}</span>
                   </Link>
                 );
               })}
             </nav>
-
-            <div className="mt-8 rounded-3xl border border-orange-500/15 bg-orange-500/[0.06] p-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-orange-400/65">
-                Alcance actual
-              </p>
-              <p className="mt-3 text-sm text-white/75">
-                Este panel está conectado a Supabase y enfocado en editar las
-                secciones públicas: Inicio, Menú, Nosotros y Contacto.
-              </p>
-            </div>
           </div>
 
           <div className="border-t border-white/8 pt-5">
             <Button
               variant="outline"
-              className="w-full border-white/10 bg-white/[0.03] text-white hover:bg-white/10"
+              className="w-full rounded-xl border-white/10 !bg-white/[0.03] text-white transition-colors duration-200 hover:!bg-white/[0.03] hover:!text-red-300"
               onClick={async () => {
                 await supabase.auth.signOut();
                 router.replace("/admin/login");
@@ -184,30 +171,28 @@ export function AdminShell({ children }: AdminShellProps) {
 
         <div className="flex min-h-screen min-w-0 flex-1 flex-col overscroll-y-none">
           <header className="sticky top-0 z-30 border-b border-white/8 bg-[#0B0B0B]/90 px-4 py-4 backdrop-blur md:px-8">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={toggleMenu}
-                  className="rounded-md border border-white/10 p-2 text-white/70 transition hover:text-orange-400 md:hidden"
-                  aria-label="Abrir menú del admin"
-                >
-                  <Menu className="h-4 w-4" />
-                </button>
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.35em] text-white/35">
-                    Panel interno
-                  </p>
-                  <div className="mt-1 flex items-center gap-2 text-sm text-white/60">
-                    <span>Admin</span>
-                    <ChevronRight className="h-3.5 w-3.5" />
-                    <span className="text-white">
-                      {adminNavItems.find((item) =>
-                        item.href === "/admin"
-                          ? pathname === item.href
-                          : pathname.startsWith(item.href)
-                      )?.label ?? "Vista"}
-                    </span>
-                  </div>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={toggleMenu}
+                className="rounded-md border border-white/10 p-2 text-white/70 transition hover:text-orange-400 md:hidden"
+                aria-label="Abrir menú del admin"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.35em] text-white/30">
+                  Panel interno
+                </p>
+                <div className="mt-1 flex items-center gap-2 text-sm text-white/55">
+                  <span>Admin</span>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                  <span className="text-white">
+                    {adminNavItems.find((item) =>
+                      item.href === "/admin"
+                        ? pathname === item.href
+                        : pathname.startsWith(item.href)
+                    )?.label ?? "Vista"}
+                  </span>
                 </div>
               </div>
             </div>

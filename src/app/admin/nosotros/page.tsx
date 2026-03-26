@@ -2,11 +2,16 @@
 
 import { useEffect, useState } from "react";
 
+import {
+  AdminFeedbackBanner,
+} from "@/components/admin/AdminFeedbackBanner";
 import { AdminActionButtons } from "@/components/admin/AdminActionButtons";
 import { ImageFieldManager } from "@/components/admin/ImageFieldManager";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminPreviewCard } from "@/components/admin/AdminPreviewCard";
 import { Input } from "@/components/ui/input";
+import { useAdminFeedback } from "@/hooks/useAdminFeedback";
+import { getAdminErrorMessage } from "@/lib/admin";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 import type { AboutContent, SiteSection } from "@/types/cms";
 
@@ -15,9 +20,12 @@ const textareaClassName =
 
 export default function AdminAboutPage() {
   const supabase = getSupabaseBrowserClient();
+  const { feedback, showFeedback } = useAdminFeedback();
   const [section, setSection] = useState<SiteSection | null>(null);
   const [form, setForm] = useState<AboutContent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     void (async () => {
@@ -42,23 +50,57 @@ export default function AdminAboutPage() {
   const handleSave = async () => {
     if (!form || !section) return;
 
-    await supabase.from("site_sections").update({ is_active: true }).eq("id", section.id);
-    await supabase
-      .from("about_content")
-      .update({
-        title: form.title,
-        description: form.description,
-        image_url: form.image_url,
-        image_path: form.image_path,
-      })
-      .eq("id", form.id);
+    setSaving(true);
+
+    try {
+      const { error: sectionError } = await supabase
+        .from("site_sections")
+        .update({ is_active: true })
+        .eq("id", section.id);
+
+      if (sectionError) throw sectionError;
+
+      const { error: aboutError } = await supabase
+        .from("about_content")
+        .update({
+          title: form.title,
+          description: form.description,
+          image_url: form.image_url,
+          image_path: form.image_path,
+        })
+        .eq("id", form.id);
+
+      if (aboutError) throw aboutError;
+
+      setSection((current) => (current ? { ...current, is_active: true } : current));
+      showFeedback({ tone: "success", message: "Sección Nosotros guardada." });
+    } catch (error) {
+      showFeedback({ tone: "error", message: getAdminErrorMessage(error) });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async () => {
     if (!section) return;
 
-    await supabase.from("site_sections").update({ is_active: false }).eq("id", section.id);
-    setSection((current) => (current ? { ...current, is_active: false } : current));
+    setDeleting(true);
+
+    try {
+      const { error } = await supabase
+        .from("site_sections")
+        .update({ is_active: false })
+        .eq("id", section.id);
+
+      if (error) throw error;
+
+      setSection((current) => (current ? { ...current, is_active: false } : current));
+      showFeedback({ tone: "success", message: "Sección Nosotros desactivada." });
+    } catch (error) {
+      showFeedback({ tone: "error", message: getAdminErrorMessage(error) });
+    } finally {
+      setDeleting(false);
+    }
   };
 
   if (loading || !form) {
@@ -70,17 +112,19 @@ export default function AdminAboutPage() {
       <AdminPageHeader
         eyebrow="Nosotros"
         title="Editor de la sección Nosotros"
-        description="Esta sección única ya guarda en `about_content`. Puedes editar título, imagen y descripción sin tocar el diseño del sitio."
+        description="Edita el título, la imagen y la descripción de esta sección única."
       />
+
+      <AdminFeedbackBanner feedback={feedback} />
 
       <AdminPreviewCard
         title="Contenido de Nosotros"
         description={`Estado actual: ${section?.is_active ? "visible" : "oculto"}`}
       >
-        <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
-          <div className="rounded-3xl border border-white/8 bg-black/20 p-5">
+        <div className="grid gap-5 lg:grid-cols-[280px_1fr]">
+          <div className="rounded-3xl border border-white/8 bg-black/20 p-4">
             <p className="text-[11px] uppercase tracking-[0.25em] text-white/35">
-              Imagen actual
+              Imagen
             </p>
             <div className="mt-4">
               <ImageFieldManager
@@ -97,7 +141,7 @@ export default function AdminAboutPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-white/8 bg-black/20 p-5">
+          <div className="rounded-3xl border border-white/8 bg-black/20 p-4">
             <div className="space-y-4">
               <div>
                 <label className="mb-2 block text-sm text-white/65">Título</label>
@@ -118,9 +162,7 @@ export default function AdminAboutPage() {
                   value={form.description}
                   onChange={(event) =>
                     setForm((current) =>
-                      current
-                        ? { ...current, description: event.target.value }
-                        : current
+                      current ? { ...current, description: event.target.value } : current
                     )
                   }
                   className={textareaClassName}
@@ -132,8 +174,9 @@ export default function AdminAboutPage() {
               <AdminActionButtons
                 compact
                 showAdd={false}
-                editLabel="Guardar cambios"
-                deleteLabel="Desactivar sección"
+                disabled={saving || deleting}
+                editLabel={saving ? "Guardando..." : "Guardar cambios"}
+                deleteLabel={deleting ? "Desactivando..." : "Desactivar sección"}
                 onEdit={() => void handleSave()}
                 onDelete={() => void handleDelete()}
               />

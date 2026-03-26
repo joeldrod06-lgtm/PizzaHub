@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 
 import { AdminMetricCard } from "@/components/admin/AdminMetricCard";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { AdminPreviewCard } from "@/components/admin/AdminPreviewCard";
 import { adminSections } from "@/data/admin";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 
@@ -38,8 +37,8 @@ export default function AdminDashboardPage() {
     <>
       <AdminPageHeader
         eyebrow="Resumen"
-        title="Secciones conectadas al contenido real"
-        description="Esta vista ya no usa mocks de contenido. Cada módulo del panel se alimenta desde Supabase y refleja lo que verá el sitio público."
+        title="Panel de contenido"
+        description="Accede rápido a las secciones editables del sitio."
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -48,33 +47,34 @@ export default function AdminDashboardPage() {
             key={section.title}
             label={section.title}
             value={String(counts[section.title] ?? 0)}
-            helper={section.description}
+            helper="registros"
           />
         ))}
       </section>
 
-      <section className="mt-6 grid gap-6 md:grid-cols-2">
-        {adminSections.map((section) => (
-          <AdminPreviewCard
-            key={section.title}
-            title={section.title}
-            description={section.description}
-          >
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/8 bg-black/20 p-4">
+      <section className="mt-6 rounded-3xl border border-white/8 bg-white/[0.02] p-5 md:p-6">
+        <div className="mb-4">
+          <h3 className="text-base font-medium text-white md:text-lg">Accesos rápidos</h3>
+          <p className="mt-1 text-sm text-white/40">
+            Abre la sección que quieras editar.
+          </p>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          {adminSections.map((section) => (
+            <Link
+              key={section.title}
+              href={section.route}
+              className="flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 px-4 py-4 transition hover:border-white/14 hover:bg-black/30"
+            >
               <div>
-                <p className="text-sm text-white/70">Ruta del editor</p>
-                <p className="mt-1 text-lg font-medium text-white">{section.route}</p>
+                <p className="text-sm font-medium text-white">{section.title}</p>
+                <p className="mt-1 text-sm text-white/40">{section.description}</p>
               </div>
-              <Link
-                href={section.route}
-                className="inline-flex items-center text-sm text-orange-300 transition hover:text-orange-200"
-              >
-                Abrir
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </div>
-          </AdminPreviewCard>
-        ))}
+              <ArrowRight className="h-4 w-4 text-orange-300" />
+            </Link>
+          ))}
+        </div>
       </section>
     </>
   );

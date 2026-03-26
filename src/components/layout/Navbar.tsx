@@ -1,7 +1,7 @@
 "use client";
 
-import { Menu as MenuIcon, ShoppingBag, X } from "lucide-react";
 import { motion } from "framer-motion";
+import { Menu as MenuIcon, ShoppingBag, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useMobileMenu } from "@/hooks/useMobileMenu";
@@ -20,9 +20,9 @@ export function Navbar() {
 
   return (
     <motion.nav
-      initial={{ y: -40, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
       className="fixed top-0 z-50 w-full border-b border-[#E8E8E8]/10 bg-[#0A0A0A]/95 backdrop-blur-sm"
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 md:px-8 md:py-5">
@@ -71,7 +71,7 @@ export function Navbar() {
       <motion.div
         initial={false}
         animate={{ height: isOpen ? "auto" : 0, opacity: isOpen ? 1 : 0 }}
-        transition={{ duration: 0.25 }}
+        transition={{ duration: 0.3 }}
         className="overflow-hidden border-b border-[#E8E8E8]/10 bg-[#0A0A0A]/95 backdrop-blur-sm md:hidden"
       >
         <div className="flex flex-col gap-4 px-6 py-4">

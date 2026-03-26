@@ -2,10 +2,15 @@
 
 import { useEffect, useState } from "react";
 
+import {
+  AdminFeedbackBanner,
+} from "@/components/admin/AdminFeedbackBanner";
 import { AdminActionButtons } from "@/components/admin/AdminActionButtons";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AdminPreviewCard } from "@/components/admin/AdminPreviewCard";
 import { Input } from "@/components/ui/input";
+import { useAdminFeedback } from "@/hooks/useAdminFeedback";
+import { getAdminErrorMessage } from "@/lib/admin";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 import type { HeroContent, SiteSection } from "@/types/cms";
 
@@ -14,9 +19,12 @@ const textareaClassName =
 
 export default function AdminHeroPage() {
   const supabase = getSupabaseBrowserClient();
+  const { feedback, showFeedback } = useAdminFeedback();
   const [section, setSection] = useState<SiteSection | null>(null);
   const [form, setForm] = useState<HeroContent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     void (async () => {
@@ -45,25 +53,59 @@ export default function AdminHeroPage() {
   const handleSave = async () => {
     if (!form || !section) return;
 
-    await supabase.from("site_sections").update({ is_active: true }).eq("id", section.id);
-    await supabase
-      .from("hero_content")
-      .update({
-        title: form.title,
-        description: form.description,
-        primary_button_text: form.primary_button_text,
-        primary_button_href: form.primary_button_href,
-        secondary_button_text: form.secondary_button_text,
-        secondary_button_href: form.secondary_button_href,
-      })
-      .eq("id", form.id);
+    setSaving(true);
+
+    try {
+      const { error: sectionError } = await supabase
+        .from("site_sections")
+        .update({ is_active: true })
+        .eq("id", section.id);
+
+      if (sectionError) throw sectionError;
+
+      const { error: contentError } = await supabase
+        .from("hero_content")
+        .update({
+          title: form.title,
+          description: form.description,
+          primary_button_text: form.primary_button_text,
+          primary_button_href: form.primary_button_href,
+          secondary_button_text: form.secondary_button_text,
+          secondary_button_href: form.secondary_button_href,
+        })
+        .eq("id", form.id);
+
+      if (contentError) throw contentError;
+
+      setSection((current) => (current ? { ...current, is_active: true } : current));
+      showFeedback({ tone: "success", message: "Inicio guardado correctamente." });
+    } catch (error) {
+      showFeedback({ tone: "error", message: getAdminErrorMessage(error) });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async () => {
     if (!section) return;
 
-    await supabase.from("site_sections").update({ is_active: false }).eq("id", section.id);
-    setSection((current) => (current ? { ...current, is_active: false } : current));
+    setDeleting(true);
+
+    try {
+      const { error } = await supabase
+        .from("site_sections")
+        .update({ is_active: false })
+        .eq("id", section.id);
+
+      if (error) throw error;
+
+      setSection((current) => (current ? { ...current, is_active: false } : current));
+      showFeedback({ tone: "success", message: "Inicio desactivado correctamente." });
+    } catch (error) {
+      showFeedback({ tone: "error", message: getAdminErrorMessage(error) });
+    } finally {
+      setDeleting(false);
+    }
   };
 
   if (loading || !form) {
@@ -75,11 +117,13 @@ export default function AdminHeroPage() {
       <AdminPageHeader
         eyebrow="Inicio"
         title="Editor del hero principal"
-        description="Esta sección ya está conectada a `hero_content`. Editar guarda cambios reales y eliminar desactiva la sección en el sitio."
+        description="Actualiza el bloque principal del sitio y controla si la sección está visible."
       />
 
+      <AdminFeedbackBanner feedback={feedback} />
+
       <AdminPreviewCard
-        title="Contenido de Inicio"
+        title="Contenido principal"
         description={`Estado actual: ${section?.is_active ? "visible" : "oculto"}`}
       >
         <div className="grid gap-4">
@@ -147,8 +191,9 @@ export default function AdminHeroPage() {
           <AdminActionButtons
             compact
             showAdd={false}
-            editLabel="Guardar cambios"
-            deleteLabel="Desactivar sección"
+            disabled={saving || deleting}
+            editLabel={saving ? "Guardando..." : "Guardar cambios"}
+            deleteLabel={deleting ? "Desactivando..." : "Desactivar sección"}
             onEdit={() => void handleSave()}
             onDelete={() => void handleDelete()}
           />

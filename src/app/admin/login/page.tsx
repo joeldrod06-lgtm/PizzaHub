@@ -22,12 +22,12 @@ export default function AdminLoginPage() {
       </p>
       <h1 className="mt-3 text-3xl font-light text-white">Acceso admin</h1>
       <p className="mt-3 text-sm leading-6 text-white/50">
-        Inicia sesión con un usuario registrado en Supabase Auth y autorizado en
-        `admin_profiles`.
+        Inicia sesión con un usuario registrado en Supabase Auth
       </p>
 
       <form
         className="mt-6 space-y-4"
+        autoComplete="off"
         onSubmit={(event) => {
           event.preventDefault();
           setError(null);
@@ -66,8 +66,13 @@ export default function AdminLoginPage() {
           <label className="mb-2 block text-sm text-white/65">Correo</label>
           <Input
             type="email"
+            name="admin_email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             className="border-white/10 bg-black/20 text-white"
             required
           />
@@ -77,8 +82,10 @@ export default function AdminLoginPage() {
           <label className="mb-2 block text-sm text-white/65">Contraseña</label>
           <Input
             type="password"
+            name="admin_password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            autoComplete="new-password"
             className="border-white/10 bg-black/20 text-white"
             required
           />

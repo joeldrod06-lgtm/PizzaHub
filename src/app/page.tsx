@@ -13,7 +13,7 @@ export default async function Page() {
   const visibleContact = isContactVisible ? content.contact : null;
 
   return (
-    <main className="min-h-screen bg-[#0A0A0A] text-[#E8E8E8] font-['Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] antialiased selection:bg-orange-500/30 selection:text-[#E8E8E8] overflow-x-clip">
+    <main className="min-h-screen bg-[#0A0A0A] text-[#E8E8E8] font-['Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] antialiased selection:bg-orange-500/30 selection:text-[#E8E8E8] overflow-x-hidden">
       <Navbar />
       {content.sections.inicio?.is_active !== false && content.hero ? (
         <Hero content={content.hero} />

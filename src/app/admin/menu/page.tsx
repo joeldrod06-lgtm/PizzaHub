@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import {
+  AdminFeedbackBanner,
+} from "@/components/admin/AdminFeedbackBanner";
 import { AdminActionButtons } from "@/components/admin/AdminActionButtons";
 import { ImageFieldManager } from "@/components/admin/ImageFieldManager";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -9,11 +12,13 @@ import { AdminPreviewCard } from "@/components/admin/AdminPreviewCard";
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAdminFeedback } from "@/hooks/useAdminFeedback";
+import { getAdminErrorMessage } from "@/lib/admin";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 import type { MenuItem } from "@/types/cms";
 
 const textareaClassName =
-  "flex min-h-28 w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition focus:border-orange-500/30";
+  "flex min-h-24 w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition focus:border-orange-500/30";
 
 type NewMenuItemDraft = {
   name: string;
@@ -41,6 +46,7 @@ function createEmptyNewItem(): NewMenuItemDraft {
 
 export default function AdminMenuPage() {
   const supabase = getSupabaseBrowserClient();
+  const { feedback, showFeedback } = useAdminFeedback();
   const [items, setItems] = useState<MenuItem[]>([]);
   const [newItem, setNewItem] = useState<NewMenuItemDraft>(createEmptyNewItem);
   const [loading, setLoading] = useState(true);
@@ -60,11 +66,17 @@ export default function AdminMenuPage() {
     newItem.price.trim().length > 0;
 
   const loadItems = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("menu_items")
       .select("*")
       .order("display_order", { ascending: true })
       .order("created_at", { ascending: true });
+
+    if (error) {
+      showFeedback({ tone: "error", message: getAdminErrorMessage(error) });
+      setLoading(false);
+      return;
+    }
 
     setItems((data ?? []) as MenuItem[]);
     setLoading(false);
@@ -84,7 +96,7 @@ export default function AdminMenuPage() {
     setSavingId(item.id);
 
     try {
-      await supabase
+      const { error } = await supabase
         .from("menu_items")
         .update({
           name: item.name,
@@ -98,7 +110,12 @@ export default function AdminMenuPage() {
         })
         .eq("id", item.id);
 
+      if (error) throw error;
+
       await loadItems();
+      showFeedback({ tone: "success", message: `"${item.name}" se guardó correctamente.` });
+    } catch (error) {
+      showFeedback({ tone: "error", message: getAdminErrorMessage(error) });
     } finally {
       setSavingId(null);
     }
@@ -109,11 +126,20 @@ export default function AdminMenuPage() {
 
     try {
       if (item.image_path) {
-        await supabase.storage.from("site-media").remove([item.image_path]);
+        const { error: storageError } = await supabase.storage
+          .from("site-media")
+          .remove([item.image_path]);
+
+        if (storageError) throw storageError;
       }
 
-      await supabase.from("menu_items").delete().eq("id", item.id);
+      const { error } = await supabase.from("menu_items").delete().eq("id", item.id);
+      if (error) throw error;
+
       await loadItems();
+      showFeedback({ tone: "success", message: `"${item.name}" se eliminó correctamente.` });
+    } catch (error) {
+      showFeedback({ tone: "error", message: getAdminErrorMessage(error) });
     } finally {
       setDeletingId(null);
     }
@@ -127,8 +153,10 @@ export default function AdminMenuPage() {
     setCreating(true);
 
     try {
-      await supabase.from("menu_items").insert({
-        name: newItem.name.trim(),
+      const itemName = newItem.name.trim();
+
+      const { error } = await supabase.from("menu_items").insert({
+        name: itemName,
         description: newItem.description.trim(),
         price: Number(newItem.price),
         category: newItem.category.trim(),
@@ -138,8 +166,13 @@ export default function AdminMenuPage() {
         display_order: Number(newItem.display_order || nextDisplayOrder),
       });
 
+      if (error) throw error;
+
       setNewItem(createEmptyNewItem());
       await loadItems();
+      showFeedback({ tone: "success", message: `"${itemName}" se creó correctamente.` });
+    } catch (error) {
+      showFeedback({ tone: "error", message: getAdminErrorMessage(error) });
     } finally {
       setCreating(false);
     }
@@ -154,13 +187,15 @@ export default function AdminMenuPage() {
       <AdminPageHeader
         eyebrow="Menú"
         title="Editor del menú público"
-        description="Esta vista ya está conectada a `menu_items`. Aquí administras las pizzas existentes y, en un bloque separado, agregas nuevas sin duplicar acciones."
+        description="Gestiona las pizzas visibles en el sitio y agrega nuevos productos desde un bloque separado."
       />
 
-      <div className="space-y-6">
+      <AdminFeedbackBanner feedback={feedback} />
+
+      <div className="space-y-5">
         <AdminPreviewCard
           title="Pizzas existentes"
-          description="Aquí administras productos ya creados: editas datos, imagen, orden y visibilidad sin mezclarlo con el alta de nuevos productos."
+          description="Edita nombre, precio, imagen y visibilidad de cada producto."
         >
           <div className="space-y-4">
             {items.length === 0 ? (
@@ -175,9 +210,9 @@ export default function AdminMenuPage() {
               return (
                 <div
                   key={item.id}
-                  className="rounded-3xl border border-white/8 bg-black/20 p-5"
+                  className="rounded-3xl border border-white/8 bg-black/20 p-4"
                 >
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="flex flex-col gap-3 border-b border-white/8 pb-4 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="text-sm font-medium text-white">{item.name}</p>
                       <p className="mt-1 text-xs text-white/40">
@@ -187,12 +222,12 @@ export default function AdminMenuPage() {
 
                     <AdminStatusBadge
                       tone={item.is_active ? "green" : "neutral"}
-                      label={item.is_active ? "Activa" : "Oculta"}
+                      label={item.is_active ? "Visible" : "Oculta"}
                     />
                   </div>
 
-                  <div className="mt-5 grid gap-5 lg:grid-cols-[320px_1fr]">
-                    <div className="rounded-3xl border border-white/8 bg-black/20 p-5">
+                  <div className="mt-4 grid gap-4 lg:grid-cols-[260px_1fr]">
+                    <div className="rounded-3xl border border-white/8 bg-black/20 p-4">
                       <p className="text-[11px] uppercase tracking-[0.25em] text-white/35">
                         Imagen
                       </p>
@@ -215,7 +250,7 @@ export default function AdminMenuPage() {
                       </div>
                     </div>
 
-                    <div className="rounded-3xl border border-white/8 bg-black/20 p-5">
+                    <div className="rounded-3xl border border-white/8 bg-black/20 p-4">
                       <div className="grid gap-4 md:grid-cols-2">
                         <div>
                           <label className="mb-2 block text-sm text-white/65">Nombre</label>
@@ -247,20 +282,14 @@ export default function AdminMenuPage() {
                             step="1"
                             value={String(item.price)}
                             onChange={(event) =>
-                              updateItemField(
-                                item.id,
-                                "price",
-                                Number(event.target.value || 0)
-                              )
+                              updateItemField(item.id, "price", Number(event.target.value || 0))
                             }
                             className="border-white/10 bg-black/20 text-white"
                           />
                         </div>
 
                         <div>
-                          <label className="mb-2 block text-sm text-white/65">
-                            Orden visual
-                          </label>
+                          <label className="mb-2 block text-sm text-white/65">Orden visual</label>
                           <Input
                             type="number"
                             min="0"
@@ -309,9 +338,7 @@ export default function AdminMenuPage() {
                           showAdd={false}
                           disabled={isBusy}
                           editLabel={savingId === item.id ? "Guardando..." : "Guardar cambios"}
-                          deleteLabel={
-                            deletingId === item.id ? "Eliminando..." : "Eliminar pizza"
-                          }
+                          deleteLabel={deletingId === item.id ? "Eliminando..." : "Eliminar pizza"}
                           onEdit={() => void handleSave(item)}
                           onDelete={() => void handleDelete(item)}
                         />
@@ -326,12 +353,12 @@ export default function AdminMenuPage() {
 
         <AdminPreviewCard
           title="Agregar nueva pizza"
-          description="Este bloque se usa solo para crear una nueva pizza, manteniendo separado el flujo de alta del flujo de edición."
+          description="Crea un nuevo producto sin mezclarlo con la edición de los ya existentes."
         >
-          <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
-            <div className="rounded-3xl border border-white/8 bg-black/20 p-5">
+          <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
+            <div className="rounded-3xl border border-white/8 bg-black/20 p-4">
               <p className="text-[11px] uppercase tracking-[0.25em] text-white/35">
-                Imagen del nuevo producto
+                Imagen
               </p>
               <div className="mt-4">
                 <ImageFieldManager
@@ -346,7 +373,7 @@ export default function AdminMenuPage() {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-dashed border-orange-500/20 bg-orange-500/[0.04] p-5">
+            <div className="rounded-3xl border border-dashed border-orange-500/20 bg-orange-500/[0.04] p-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm text-white/65">Nombre</label>
@@ -365,10 +392,7 @@ export default function AdminMenuPage() {
                   <Input
                     value={newItem.category}
                     onChange={(event) =>
-                      setNewItem((current) => ({
-                        ...current,
-                        category: event.target.value,
-                      }))
+                      setNewItem((current) => ({ ...current, category: event.target.value }))
                     }
                     className="border-white/10 bg-black/20 text-white"
                     placeholder="Clásicas"
@@ -414,10 +438,7 @@ export default function AdminMenuPage() {
                 <textarea
                   value={newItem.description}
                   onChange={(event) =>
-                    setNewItem((current) => ({
-                      ...current,
-                      description: event.target.value,
-                    }))
+                    setNewItem((current) => ({ ...current, description: event.target.value }))
                   }
                   className={textareaClassName}
                   placeholder="Describe los ingredientes y el estilo de esta pizza."
@@ -430,10 +451,7 @@ export default function AdminMenuPage() {
                     type="checkbox"
                     checked={newItem.is_active}
                     onChange={(event) =>
-                      setNewItem((current) => ({
-                        ...current,
-                        is_active: event.target.checked,
-                      }))
+                      setNewItem((current) => ({ ...current, is_active: event.target.checked }))
                     }
                     className="h-4 w-4 rounded border-white/15 bg-black/20 accent-orange-500"
                   />

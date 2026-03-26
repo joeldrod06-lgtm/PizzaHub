@@ -28,7 +28,7 @@ export function Footer({ contact }: FooterProps) {
               </span>
             </div>
             <p className="text-xs font-light leading-relaxed text-[#E8E8E8]/20">
-              La nueva experiencia de pizza artesanal,
+              La nueva experiencia de pizza artesanal,{" "}
               <br className="hidden sm:block" />
               hecha con pasión desde 2026.
             </p>
@@ -60,28 +60,31 @@ export function Footer({ contact }: FooterProps) {
             </h5>
             <ul className="space-y-2 text-xs text-[#E8E8E8]/20">
               {contact?.schedule ? <li>{contact.schedule}</li> : null}
-              {contact?.address ? <li>{contact.address}</li> : null}
               <li className="text-orange-400/20">Delivery hasta 00:30</li>
             </ul>
           </div>
           <div>
             <h5 className="mb-3 text-xs font-light tracking-wider text-[#E8E8E8]/50 sm:mb-4">
-              CONTACTO
+              SOCIAL
             </h5>
-            <div className="flex flex-col gap-2 text-xs text-[#E8E8E8]/20">
+            <div className="flex gap-4">
               <a
-                href={contact?.phone ? `tel:${contact.phone.replace(/\s+/g, "")}` : "#"}
-                className="transition-colors duration-200 hover:text-orange-400"
+                href="#"
+                className="text-xs text-[#E8E8E8]/20 transition-colors duration-200 hover:text-orange-400"
               >
-                {contact?.phone ?? "Disponible en el sitio"}
+                Facebook
               </a>
               <a
-                href={contact?.map_url ?? "#"}
-                target="_blank"
-                rel="noreferrer"
-                className="transition-colors duration-200 hover:text-orange-400"
+                href="#"
+                className="text-xs text-[#E8E8E8]/20 transition-colors duration-200 hover:text-orange-400"
               >
-                {contact?.map_url ? "Ver ubicación" : "Mapa no configurado"}
+                Instagram
+              </a>
+              <a
+                href="#"
+                className="text-xs text-[#E8E8E8]/20 transition-colors duration-200 hover:text-orange-400"
+              >
+                X
               </a>
             </div>
           </div>

@@ -1,7 +1,8 @@
 "use client";
 
-import Image from "next/image";
+import { motion } from "framer-motion";
 import { Flame, Pizza, Star } from "lucide-react";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,7 +16,7 @@ export function MenuSection({ items }: MenuSectionProps) {
   return (
     <section
       id="menu"
-      className="scroll-mt-24 bg-[#0A0A0A] px-4 py-16 sm:px-6 sm:py-20 md:px-8 md:py-28 lg:py-32"
+      className="bg-[#0A0A0A] px-4 py-16 scroll-mt-24 sm:px-6 sm:py-20 md:px-8 md:py-28 lg:py-32"
     >
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 text-center md:mb-16 md:text-left">
@@ -30,7 +31,11 @@ export function MenuSection({ items }: MenuSectionProps) {
 
         <div className="grid grid-cols-1 items-stretch gap-5 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {items.map((pizza, index) => (
-            <div key={pizza.id} className="h-full">
+            <motion.div
+              key={pizza.id}
+              whileHover={{ y: -4 }}
+              className="h-full"
+            >
               <Card className="group flex h-full flex-col overflow-hidden rounded-md border border-[#E8E8E8]/10 bg-[#0F0F0F] shadow-2xl transition-all duration-500 hover:border-orange-500/30">
                 <div className="relative flex h-40 flex-shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-[#141414] to-[#1A1A1A] sm:h-44 md:h-48 lg:h-52">
                   <div className="absolute inset-0 bg-orange-500/5 transition-all duration-500 group-hover:bg-orange-500/10" />
@@ -70,13 +75,13 @@ export function MenuSection({ items }: MenuSectionProps) {
                     {index === 0 ? (
                       <div className="inline-flex items-center gap-1 rounded-full bg-orange-500/10 px-2 py-1 text-[9px] font-medium uppercase tracking-wider text-orange-400/70 sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-[10px]">
                         <Flame className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                        <span className="text-[9px] sm:text-[10px]">Más pedida</span>
+                        <span className="text-[9px] sm:text-[10px]">🔥 MÁS PEDIDA</span>
                       </div>
                     ) : null}
                   </div>
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
           ))}
         </div>
 
