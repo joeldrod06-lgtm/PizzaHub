@@ -1,23 +1,34 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Phone } from "lucide-react";
+import { ArrowRight, PhoneCall } from "lucide-react";
 import Image from "next/image";
 
 import { staggerContainer, staggerItem } from "@/animations/stagger";
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 import { Button } from "@/components/ui/button";
 import { useSmoothScroll } from "@/hooks/useSmoothScroll";
-import type { HeroContent } from "@/types/cms";
+import { createWhatsAppUrl } from "@/lib/contact";
+import type { ContactContent, HeroContent } from "@/types/cms";
 
 type HeroProps = {
   content: HeroContent;
+  contact?: ContactContent | null;
 };
 
-export function Hero({ content }: HeroProps) {
+export function Hero({ content, contact }: HeroProps) {
   const smoothScroll = useSmoothScroll();
   const titleParts = content.title.split(" ");
   const titlePrefix = titleParts.slice(0, -1).join(" ");
   const titleAccent = titleParts.at(-1) ?? content.title;
+  const whatsappHref = contact
+    ? createWhatsAppUrl(
+        contact.phone,
+        "Hola PizzaHub, quiero hacer un pedido. ¿Podrían ayudarme por favor?"
+      )
+    : null;
+  const shouldUseWhatsApp =
+    content.secondary_button_href === "#contacto" && Boolean(whatsappHref);
 
   const handleNavigate = (href: string) => {
     if (href.startsWith("#")) {
@@ -43,6 +54,7 @@ export function Hero({ content }: HeroProps) {
           src="/pizza-hero.png"
           alt="Pizza artesanal"
           fill
+          sizes="100vw"
           className="object-cover opacity-30"
           priority
         />
@@ -100,11 +112,19 @@ export function Hero({ content }: HeroProps) {
 
           <motion.div whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
             <Button
-              onClick={() => handleNavigate(content.secondary_button_href)}
+              onClick={() =>
+                handleNavigate(
+                  shouldUseWhatsApp && whatsappHref ? whatsappHref : content.secondary_button_href
+                )
+              }
               className="group relative w-full overflow-hidden rounded-md border border-white/10 bg-white/5 px-6 py-4 text-sm font-medium tracking-wide text-white backdrop-blur transition-all duration-300 hover:border-orange-400/30 hover:bg-white/10 sm:w-auto sm:px-8 sm:py-5 md:px-10 md:py-6"
             >
               <span className="absolute inset-0 bg-white/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              <Phone className="mr-2 h-4 w-4" />
+              {shouldUseWhatsApp ? (
+                <WhatsAppIcon className="mr-2 h-4 w-4" />
+              ) : (
+                <PhoneCall className="mr-2 h-4 w-4" />
+              )}
               {content.secondary_button_text}
             </Button>
           </motion.div>

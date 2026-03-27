@@ -1,9 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Clock, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Clock, MapPin, PhoneCall } from "lucide-react";
 
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon";
 import { Button } from "@/components/ui/button";
+import { createWhatsAppUrl, normalizePhoneNumber } from "@/lib/contact";
 import type { ContactContent } from "@/types/cms";
 
 type ContactProps = {
@@ -11,6 +13,11 @@ type ContactProps = {
 };
 
 export function Contact({ content }: ContactProps) {
+  const whatsappMessage =
+    "Hola PizzaHub, quiero hacer un pedido. ¿Me comparten el menú disponible, por favor?";
+  const phoneHref = `tel:${normalizePhoneNumber(content.phone)}`;
+  const whatsappHref = createWhatsAppUrl(content.phone, whatsappMessage);
+
   return (
     <section
       id="contacto"
@@ -33,18 +40,23 @@ export function Contact({ content }: ContactProps) {
                 asChild
                 className="group relative w-full overflow-hidden rounded-md border border-orange-500/20 bg-orange-500/10 px-6 py-4 text-sm font-medium tracking-wide text-orange-400 transition-all duration-300 hover:border-orange-500/30 hover:bg-orange-500/20 sm:px-8 sm:py-5"
               >
-                <a href={`tel:${content.phone.replace(/\s+/g, "")}`}>
+                <a href={phoneHref}>
                   <span className="absolute inset-0 bg-orange-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                  <Phone className="mr-2 h-4 w-4" />
+                  <PhoneCall className="mr-2 h-4 w-4" />
                   {content.phone}
                 </a>
               </Button>
             </motion.div>
             <motion.div whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
-              <Button className="group relative w-full overflow-hidden rounded-md border border-orange-500/20 bg-orange-500/10 px-6 py-4 text-sm font-medium tracking-wide text-orange-400 transition-all duration-300 hover:border-orange-500/30 hover:bg-orange-500/20 sm:px-8 sm:py-5">
-                <span className="absolute inset-0 bg-orange-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <MessageCircle className="mr-2 h-4 w-4" />
-                WhatsApp
+              <Button
+                asChild
+                className="group relative w-full overflow-hidden rounded-md border border-orange-500/20 bg-orange-500/10 px-6 py-4 text-sm font-medium tracking-wide text-orange-400 transition-all duration-300 hover:border-orange-500/30 hover:bg-orange-500/20 sm:px-8 sm:py-5"
+              >
+                <a href={whatsappHref} target="_blank" rel="noreferrer">
+                  <span className="absolute inset-0 bg-orange-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <WhatsAppIcon className="mr-2 h-4 w-4" />
+                  Contactar por WhatsApp
+                </a>
               </Button>
             </motion.div>
           </div>

@@ -16,7 +16,7 @@ export default async function Page() {
     <main className="min-h-screen bg-[#0A0A0A] text-[#E8E8E8] font-['Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,sans-serif] antialiased selection:bg-orange-500/30 selection:text-[#E8E8E8] overflow-x-hidden">
       <Navbar />
       {content.sections.inicio?.is_active !== false && content.hero ? (
-        <Hero content={content.hero} />
+        <Hero content={content.hero} contact={visibleContact} />
       ) : null}
       <Features />
       <MenuSection items={content.menu} />
