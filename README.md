@@ -2,6 +2,12 @@
 
 PizzaHub es una landing page para una pizzería con panel de administración integrado. El sitio público consume contenido desde Supabase y el panel admin permite editar textos, imágenes, visibilidad de secciones y productos del menú sin tocar código.
 
+## Demo en producción
+
+Puedes ver el proyecto desplegado en:
+
+[https://pizza-hub-phi-one.vercel.app/#nosotros](https://pizza-hub-phi-one.vercel.app/#nosotros)
+
 ## Contenido
 
 - [Resumen](#resumen)
@@ -351,11 +357,3 @@ npm run build
 npm run start
 ```
 
-## Nota final
-
-PizzaHub está preparado para operar como una landing editable para negocio real. Si quieres extenderlo, los mejores puntos de entrada son:
-
-- nuevas secciones públicas en `src/components/sections`
-- nuevas vistas admin en `src/components/admin/views`
-- nuevas tablas CMS en Supabase
-- nuevas reglas de negocio en `src/lib`
