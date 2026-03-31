@@ -6,7 +6,7 @@ PizzaHub es una landing page para una pizzería con panel de administración int
 
 Puedes ver el proyecto desplegado en:
 
-[https://pizza-hub-phi-one.vercel.app/#nosotros](https://pizza-hub-phi-one.vercel.app/#nosotros)
+[https://pizza-hub-phi-one.vercel.app/](https://pizza-hub-phi-one.vercel.app/)
 
 ## Contenido
 
