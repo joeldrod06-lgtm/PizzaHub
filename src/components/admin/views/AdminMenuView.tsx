@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AdminFeedbackBanner } from "@/components/admin/AdminFeedbackBanner";
 import { AdminActionButtons } from "@/components/admin/AdminActionButtons";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAdminFeedback } from "@/hooks/useAdminFeedback";
 import { getAdminErrorMessage } from "@/lib/admin";
+import { revalidatePublicSite } from "@/lib/revalidate-client";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 import type { MenuItem } from "@/types/cms";
 
@@ -52,10 +53,6 @@ export function AdminMenuView() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
-  useEffect(() => {
-    void loadItems();
-  }, []);
-
   const nextDisplayOrder = useMemo(() => items.length + 1, [items.length]);
   const canCreate =
     newItem.name.trim().length > 0 &&
@@ -63,7 +60,7 @@ export function AdminMenuView() {
     newItem.category.trim().length > 0 &&
     newItem.price.trim().length > 0;
 
-  const loadItems = async () => {
+  const loadItems = useCallback(async () => {
     const { data, error } = await supabase
       .from("menu_items")
       .select("*")
@@ -78,7 +75,11 @@ export function AdminMenuView() {
 
     setItems((data ?? []) as MenuItem[]);
     setLoading(false);
-  };
+  }, [showFeedback, supabase]);
+
+  useEffect(() => {
+    void loadItems();
+  }, [loadItems]);
 
   const updateItemField = <K extends keyof MenuItem>(
     id: string,
@@ -109,6 +110,7 @@ export function AdminMenuView() {
 
       if (error) throw error;
 
+      await revalidatePublicSite();
       await loadItems();
       showFeedback({
         tone: "success",
@@ -134,6 +136,7 @@ export function AdminMenuView() {
       const { error } = await supabase.from("menu_items").delete().eq("id", item.id);
       if (error) throw error;
 
+      await revalidatePublicSite();
       await loadItems();
       showFeedback({
         tone: "success",
@@ -164,6 +167,7 @@ export function AdminMenuView() {
       });
       if (error) throw error;
 
+      await revalidatePublicSite();
       setNewItem(createEmptyNewItem());
       await loadItems();
       showFeedback({

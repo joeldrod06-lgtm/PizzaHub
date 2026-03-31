@@ -64,7 +64,7 @@ export function Hero({ content, contact }: HeroProps) {
 
       <motion.div
         variants={staggerContainer}
-        initial="hidden"
+        initial={false}
         animate="show"
         className="relative z-10 max-w-5xl px-4 text-[#E8E8E8] sm:px-6 md:px-8"
       >
@@ -132,7 +132,7 @@ export function Hero({ content, contact }: HeroProps) {
       </motion.div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={false}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 0.6 }}
         className="absolute bottom-6 left-1/2 -translate-x-1/2 transform sm:bottom-12"

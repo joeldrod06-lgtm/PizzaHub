@@ -28,15 +28,13 @@ const AdminNavigationContext = createContext<AdminNavigationContextValue | null>
 );
 
 export function AdminNavigationProvider({ children }: { children: ReactNode }) {
-  const [selectedView, setSelectedView] = useState<AdminViewKey>("resumen");
-
-  useEffect(() => {
-    const savedView = window.localStorage.getItem(STORAGE_KEY) as AdminViewKey | null;
-
-    if (savedView) {
-      setSelectedView(savedView);
+  const [selectedView, setSelectedView] = useState<AdminViewKey>(() => {
+    if (typeof window === "undefined") {
+      return "resumen";
     }
-  }, []);
+
+    return (window.localStorage.getItem(STORAGE_KEY) as AdminViewKey | null) ?? "resumen";
+  });
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, selectedView);

@@ -44,7 +44,7 @@ export function MenuSection({ items }: MenuSectionProps) {
                       src={pizza.image_url}
                       alt={pizza.name}
                       fill
-                      sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                      unoptimized 
                       className="object-cover"
                     />
                   ) : (

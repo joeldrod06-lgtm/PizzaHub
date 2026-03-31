@@ -10,6 +10,7 @@ import { AdminPreviewCard } from "@/components/admin/AdminPreviewCard";
 import { Input } from "@/components/ui/input";
 import { useAdminFeedback } from "@/hooks/useAdminFeedback";
 import { getAdminErrorMessage } from "@/lib/admin";
+import { revalidatePublicSite } from "@/lib/revalidate-client";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 import type { AboutContent, SiteSection } from "@/types/cms";
 
@@ -66,6 +67,7 @@ export function AdminAboutView() {
         .eq("id", form.id);
       if (aboutError) throw aboutError;
 
+      await revalidatePublicSite();
       setSection((current) => (current ? { ...current, is_active: true } : current));
       showFeedback({ tone: "success", message: "Sección Nosotros guardada." });
     } catch (error) {
@@ -85,6 +87,7 @@ export function AdminAboutView() {
         .eq("id", section.id);
       if (error) throw error;
 
+      await revalidatePublicSite();
       setSection((current) => (current ? { ...current, is_active: false } : current));
       showFeedback({ tone: "success", message: "Sección Nosotros desactivada." });
     } catch (error) {

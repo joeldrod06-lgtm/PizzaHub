@@ -8,7 +8,13 @@ let browserClient: SupabaseClient | undefined;
 
 export function getSupabaseBrowserClient() {
   if (!browserClient) {
-    browserClient = createClient(supabaseUrl, supabaseAnonKey);
+    browserClient = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+        persistSession: true,
+      },
+    });
   }
 
   return browserClient;

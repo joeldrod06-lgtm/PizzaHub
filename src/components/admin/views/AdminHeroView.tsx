@@ -9,6 +9,7 @@ import { AdminPreviewCard } from "@/components/admin/AdminPreviewCard";
 import { Input } from "@/components/ui/input";
 import { useAdminFeedback } from "@/hooks/useAdminFeedback";
 import { getAdminErrorMessage } from "@/lib/admin";
+import { revalidatePublicSite } from "@/lib/revalidate-client";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 import type { HeroContent, SiteSection } from "@/types/cms";
 
@@ -71,6 +72,7 @@ export function AdminHeroView() {
         .eq("id", form.id);
       if (contentError) throw contentError;
 
+      await revalidatePublicSite();
       setSection((current) => (current ? { ...current, is_active: true } : current));
       showFeedback({ tone: "success", message: "Inicio guardado correctamente." });
     } catch (error) {
@@ -90,6 +92,7 @@ export function AdminHeroView() {
         .eq("id", section.id);
       if (error) throw error;
 
+      await revalidatePublicSite();
       setSection((current) => (current ? { ...current, is_active: false } : current));
       showFeedback({ tone: "success", message: "Inicio desactivado correctamente." });
     } catch (error) {

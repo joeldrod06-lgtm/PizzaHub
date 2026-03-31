@@ -1,12 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { ChevronRight, LogOut, Menu, PanelLeftClose } from "lucide-react";
 
-import {
-  AdminNavigationProvider,
-  useAdminNavigation,
-} from "@/components/admin/AdminNavigationProvider";
 import { Button } from "@/components/ui/button";
 import { adminNavItems } from "@/data/admin";
 import { useMobileMenu } from "@/hooks/useMobileMenu";
@@ -18,13 +15,13 @@ type AdminShellProps = {
 };
 
 function AdminShellContent({ children }: AdminShellProps) {
+  const pathname = usePathname();
   const router = useRouter();
   const { isOpen, toggleMenu, closeMenu } = useMobileMenu();
-  const { selectedView, setSelectedView } = useAdminNavigation();
   const supabase = getSupabaseBrowserClient();
 
   const activeItem =
-    adminNavItems.find((item) => item.key === selectedView) ?? adminNavItems[0];
+    adminNavItems.find((item) => item.href === pathname) ?? adminNavItems[0];
 
   const handleLogout = async () => {
     await fetch("/api/auth/session", { method: "DELETE" });
@@ -60,17 +57,15 @@ function AdminShellContent({ children }: AdminShellProps) {
           <div className="flex-1 overflow-y-auto overscroll-contain py-5 pr-1">
             <nav className="space-y-2">
               {adminNavItems.map((item) => {
-                const isActive = item.key === selectedView;
+                const isActive = item.href === pathname;
 
                 return (
-                  <button
+                  <Link
                     key={item.key}
-                    type="button"
                     onClick={() => {
-                      setSelectedView(item.key);
                       closeMenu();
-                      router.replace("/admin");
                     }}
+                    href={item.href}
                     className={cn(
                       "flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left text-sm transition",
                       isActive
@@ -80,7 +75,7 @@ function AdminShellContent({ children }: AdminShellProps) {
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
                     <span className="font-medium">{item.label}</span>
-                  </button>
+                  </Link>
                 );
               })}
             </nav>
@@ -140,9 +135,5 @@ function AdminShellContent({ children }: AdminShellProps) {
 }
 
 export function AdminShell({ children }: AdminShellProps) {
-  return (
-    <AdminNavigationProvider>
-      <AdminShellContent>{children}</AdminShellContent>
-    </AdminNavigationProvider>
-  );
+  return <AdminShellContent>{children}</AdminShellContent>;
 }

@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { AdminHeroView } from "@/components/admin/views/AdminHeroView";
 
-export default function AdminInicioRedirectPage() {
-  redirect("/admin");
+export default function AdminInicioPage() {
+  return <AdminHeroView />;
 }

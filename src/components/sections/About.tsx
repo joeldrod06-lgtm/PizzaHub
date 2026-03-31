@@ -27,7 +27,7 @@ export function About({ content }: AboutProps) {
       <div className="mx-auto max-w-6xl">
         <div className="grid items-center gap-8 md:grid-cols-2 sm:gap-12 lg:gap-16">
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
+            initial={false}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
@@ -75,7 +75,7 @@ export function About({ content }: AboutProps) {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
+            initial={false}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -86,7 +86,7 @@ export function About({ content }: AboutProps) {
                 src={content.image_url}
                 alt={content.title}
                 fill
-                sizes="(min-width: 768px) 50vw, 100vw"
+                unoptimized
                 className="object-cover opacity-80"
               />
             ) : (

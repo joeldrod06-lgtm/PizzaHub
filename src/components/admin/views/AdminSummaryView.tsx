@@ -1,9 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { useAdminNavigation } from "@/components/admin/AdminNavigationProvider";
 import { AdminMetricCard } from "@/components/admin/AdminMetricCard";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { adminSections } from "@/data/admin";
@@ -12,8 +12,8 @@ import { getSupabaseBrowserClient } from "@/lib/supabase";
 type SummaryCounts = Record<string, number>;
 
 export function AdminSummaryView() {
+  const router = useRouter();
   const supabase = getSupabaseBrowserClient();
-  const { setSelectedView } = useAdminNavigation();
   const [counts, setCounts] = useState<SummaryCounts>({});
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export function AdminSummaryView() {
             <button
               key={section.key}
               type="button"
-              onClick={() => setSelectedView(section.key)}
+              onClick={() => router.push(`/admin/${section.key}`)}
               className="flex items-center justify-between rounded-2xl border border-white/8 bg-black/20 px-4 py-4 text-left transition hover:border-white/14 hover:bg-black/30"
             >
               <div>

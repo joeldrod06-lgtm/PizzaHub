@@ -1,3 +1,5 @@
+import { unstable_noStore as noStore } from "next/cache";
+
 import { getStoragePublicUrl, getSupabaseServerClient } from "@/lib/supabase";
 import type {
   AboutContent,
@@ -10,6 +12,8 @@ import type {
 } from "@/types/cms";
 
 export async function getPublicSiteContent(): Promise<PublicSiteContent> {
+  noStore();
+
   const supabase = getSupabaseServerClient();
 
   const [sectionsResult, heroResult, menuResult, aboutResult, contactResult] =

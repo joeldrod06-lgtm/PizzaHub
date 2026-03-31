@@ -11,6 +11,7 @@ import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { Input } from "@/components/ui/input";
 import { useAdminFeedback } from "@/hooks/useAdminFeedback";
 import { getAdminErrorMessage } from "@/lib/admin";
+import { revalidatePublicSite } from "@/lib/revalidate-client";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 import type { ContactContent, SiteSection } from "@/types/cms";
 
@@ -71,6 +72,7 @@ export function AdminContactView() {
         .eq("id", form.id);
       if (contactError) throw contactError;
 
+      await revalidatePublicSite();
       setSection((current) => (current ? { ...current, is_active: true } : current));
       showFeedback({ tone: "success", message: "Contacto guardado correctamente." });
     } catch (error) {
@@ -90,6 +92,7 @@ export function AdminContactView() {
         .eq("id", section.id);
       if (error) throw error;
 
+      await revalidatePublicSite();
       setSection((current) => (current ? { ...current, is_active: false } : current));
       showFeedback({ tone: "success", message: "Contacto desactivado correctamente." });
     } catch (error) {

@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { AdminMenuView } from "@/components/admin/views/AdminMenuView";
 
-export default function AdminMenuRedirectPage() {
-  redirect("/admin");
+export default function AdminMenuPage() {
+  return <AdminMenuView />;
 }
