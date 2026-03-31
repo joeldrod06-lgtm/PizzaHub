@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { AdminFeedback } from "@/components/admin/AdminFeedbackBanner";
 
@@ -16,7 +16,7 @@ export function useAdminFeedback() {
     };
   }, []);
 
-  const showFeedback = (nextFeedback: AdminFeedback) => {
+  const showFeedback = useCallback((nextFeedback: AdminFeedback) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -25,11 +25,19 @@ export function useAdminFeedback() {
     timeoutRef.current = setTimeout(() => {
       setFeedback(null);
     }, 3500);
-  };
+  }, []);
+
+  const clearFeedback = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    setFeedback(null);
+  }, []);
 
   return {
     feedback,
     showFeedback,
-    clearFeedback: () => setFeedback(null),
+    clearFeedback,
   };
 }
