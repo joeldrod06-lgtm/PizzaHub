@@ -18,7 +18,7 @@ const textareaClassName =
   "flex min-h-40 w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none transition focus:border-orange-500/30";
 
 export function AdminAboutView() {
-  const supabase = getSupabaseBrowserClient();
+  const [supabase] = useState(() => getSupabaseBrowserClient());
   const { feedback, showFeedback } = useAdminFeedback();
   const [section, setSection] = useState<SiteSection | null>(null);
   const [form, setForm] = useState<AboutContent | null>(null);

@@ -44,7 +44,7 @@ function createEmptyNewItem(): NewMenuItemDraft {
 }
 
 export function AdminMenuView() {
-  const supabase = getSupabaseBrowserClient();
+  const [supabase] = useState(() => getSupabaseBrowserClient());
   const { feedback, showFeedback } = useAdminFeedback();
   const [items, setItems] = useState<MenuItem[]>([]);
   const [newItem, setNewItem] = useState<NewMenuItemDraft>(createEmptyNewItem);

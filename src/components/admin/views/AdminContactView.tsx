@@ -16,7 +16,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase";
 import type { ContactContent, SiteSection } from "@/types/cms";
 
 export function AdminContactView() {
-  const supabase = getSupabaseBrowserClient();
+  const [supabase] = useState(() => getSupabaseBrowserClient());
   const { feedback, showFeedback } = useAdminFeedback();
   const [section, setSection] = useState<SiteSection | null>(null);
   const [form, setForm] = useState<ContactContent | null>(null);

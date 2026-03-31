@@ -65,7 +65,7 @@ function getStageLabel(stage: LoginStage) {
 export function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = getSupabaseBrowserClient();
+  const [supabase] = useState(() => getSupabaseBrowserClient());
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);

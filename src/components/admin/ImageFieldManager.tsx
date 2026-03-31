@@ -25,7 +25,7 @@ export function ImageFieldManager({
   currentLabel,
   onChange,
 }: ImageFieldManagerProps) {
-  const supabase = getSupabaseBrowserClient();
+  const [supabase] = useState(() => getSupabaseBrowserClient());
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [pendingAction, setPendingAction] = useState<"upload" | "replace" | null>(
     null

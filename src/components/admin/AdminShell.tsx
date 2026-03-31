@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronRight, LogOut, Menu, PanelLeftClose } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { adminNavItems } from "@/data/admin";
@@ -18,7 +19,7 @@ function AdminShellContent({ children }: AdminShellProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { isOpen, toggleMenu, closeMenu } = useMobileMenu();
-  const supabase = getSupabaseBrowserClient();
+  const [supabase] = useState(() => getSupabaseBrowserClient());
 
   const activeItem =
     adminNavItems.find((item) => item.href === pathname) ?? adminNavItems[0];

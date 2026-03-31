@@ -13,7 +13,7 @@ type SummaryCounts = Record<string, number>;
 
 export function AdminSummaryView() {
   const router = useRouter();
-  const supabase = getSupabaseBrowserClient();
+  const [supabase] = useState(() => getSupabaseBrowserClient());
   const [counts, setCounts] = useState<SummaryCounts>({});
 
   useEffect(() => {
